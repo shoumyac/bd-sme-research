@@ -1,0 +1,56 @@
+cff-version: 1.2.0
+message: "If you use this dataset or code, please cite it as below."
+type: dataset
+title: "AI-Driven Credit Risk Assessment for Bangladesh SMEs: Dataset and Analysis Code"
+authors:
+  - family-names: Chowdhury
+    given-names: Shoumya
+    orcid: "https://orcid.org/0009-0005-5552-1094"
+    affiliation: "University of Melbourne"
+    email: shoumyac@student.unimelb.edu.au
+  - family-names: Das
+    given-names: Anmita
+    orcid: "https://orcid.org/0009-0000-1401-0494"
+    affiliation: "University of Melbourne"
+    email: aadas@student.unimelb.edu.au
+  - family-names: Paul
+    given-names: Sushanta
+    orcid: "https://orcid.org/0009-0007-8071-6971"
+    affiliation: "Bangladesh Customs, National Board of Revenue"
+    email: sushanta.researcher@gmail.com
+abstract: >
+  This repository contains the complete dataset and analysis pipeline for
+  "AI-Driven Credit Risk Assessment for Bangladesh SMEs: Achieving 90% Accuracy
+  with Structured Data Alone". The dataset includes 1,200 SME loan applications
+  from Bangladesh with structured features (numeric, categorical) and text
+  features (business descriptions, loan narratives). The analysis demonstrates
+  that simple logistic regression achieves 0.900 ROC-AUC, exceeding typical
+  benchmarks by 12-28%, while text features add negligible value (<1%).
+keywords:
+  - credit risk
+  - machine learning
+  - SME financing
+  - emerging markets
+  - Bangladesh
+  - financial inclusion
+  - explainable AI
+  - natural language processing
+license: "MIT"
+license-url: "https://opensource.org/licenses/MIT"
+repository-code: "https://github.com/shoumyac/BD-SME-Credit-Risk"
+version: "1.0.0"
+date-released: "2026-02-08"
+doi: 10.5281/zenodo.XXXXXXX
+preferred-citation:
+  type: article
+  authors:
+    - family-names: Chowdhury
+      given-names: Shoumya
+    - family-names: Das
+      given-names: Anmita
+    - family-names: Paul
+      given-names: Sushanta
+  title: "AI-Driven Credit Risk Assessment for Bangladesh SMEs: Achieving 90% Accuracy with Structured Data Alone"
+  journal: "Financial Innovation"
+  year: 2026
+  status: "Under review"
