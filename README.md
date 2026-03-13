@@ -1,165 +1,156 @@
 # AI-Driven Credit Risk Assessment for Bangladesh SMEs
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.XXXXXXX.svg)](https://doi.org/10.5281/zenodo.XXXXXXX)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18525278.svg)](https://doi.org/10.5281/zenodo.18525278)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Data: CC-BY 4.0](https://img.shields.io/badge/Data-CC--BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 
 ## Overview
 
-This repository contains the complete analysis pipeline for "AI-Driven Credit Risk Assessment for Bangladesh SMEs: Achieving 90% Accuracy with Structured Data Alone", submitted to Financial Innovation journal.
+This repository contains the dataset and complete analysis pipeline for:
 
-**Key Results:**
-- 🎯 **0.900 ROC-AUC** (5-fold cross-validation)
-- 📊 Simple logistic regression outperforms complex models
-- 📝 Text features add <1% value (unnecessary)
-- 🔍 Payment history is the dominant predictor
+> **Structured Data Suffices: Machine Learning for SME Credit Risk Assessment in an Emerging Market**
+>
+> Submitted to *Financial Innovation* (Springer Nature)
+
+**Key Findings:**
+- **0.900 ROC-AUC** with simple logistic regression on structured features (5-fold CV)
+- Text features (TF-IDF from loan narratives) add **<1% value** — structured data alone suffices
+- **Payment history** is the dominant predictor (coefficient ±1.9)
+- Train–test gap of only **0.017**, confirming strong generalisation
+- Simple models outperform XGBoost (0.875) and Random Forest (0.810)
 
 ## Repository Structure
 
 ```
 .
-├── data/                              # Dataset
-│   └── bangladesh_sme_1200_records.csv    # 1200 SME loan applications
-├── notebooks/                         # Analysis notebooks
-│   └── bd_sme_1200_complete_analysis.ipynb    # Main analysis
-├── results/                           # Generated outputs
-│   ├── *.png                              # Visualizations (9 figures)
-│   ├── cv_results_summary.csv             # Performance metrics
-│   └── feature_importance_lr.csv          # Feature importance rankings
-├── README.md                          # This file
-├── LICENSE                            # MIT License
-├── requirements.txt                   # Python dependencies
-└── environment.yml                    # Conda environment (optional)
+├── data/
+│   └── bangladesh_sme_1200_records.csv   # 1,200 SME loan applications
+├── notebooks/
+│   └── bd_sme_1200_complete_analysis.ipynb   # Complete analysis pipeline
+├── results/                              # Generated outputs
+│   ├── calibration_curve.png
+│   ├── confusion_matrix.png
+│   ├── cv_results_summary.csv
+│   ├── feature_importance_lr.csv
+│   ├── feature_importance_lr.png
+│   ├── model_comparison.png
+│   ├── pr_curves_all_models.png
+│   ├── roc_curves_all_models.png
+│   ├── shap_bar.png
+│   ├── shap_summary.png
+│   └── target_distribution.png
+├── CITATION.cff
+├── LICENSE                               # MIT License
+├── README.md
+└── requirements.txt
 ```
 
 ## Dataset
 
 **File:** `data/bangladesh_sme_1200_records.csv`
 
-**Description:** 1,200 SME loan applications from Bangladesh (2022-2023) with:
-- 10 numeric features (revenue, profit, loan amount, etc.)
-- 9 categorical features (sector, division, payment history, etc.)
-- 4 text features (business descriptions, loan narratives)
-- 1 target variable (missed_payment_last_12m)
+1,200 SME loan applications from Bangladesh (2022–2023) comprising:
 
-**Ethics:** All data anonymized. No personally identifiable information. Informed consent obtained by partner financial institutions.
+| Feature type | Count | Examples |
+|---|---|---|
+| Numeric | 8 | monthly revenue, profit, loan amount, cashflow stability |
+| Categorical | 11 | sector, division, late payment history, collateral level |
+| Text | 4 | business description, loan purpose, repayment plan, risk factors |
+| Target | 1 | missed_payment_last_12m (binary) |
 
-**License:** CC-BY 4.0
+**Class distribution:** 897 non-default (74.8%) / 303 default (25.2%)
 
-## Reproduction Instructions
+**Ethics:** All data anonymised. No personally identifiable information retained. Written informed consent obtained by partner financial institutions at time of loan application.
+
+**Data licence:** CC-BY 4.0
+
+## Reproduction
 
 ### Requirements
 
 - Python 3.8+
 - Jupyter Notebook
-- See `requirements.txt` for full package list
 
-### Installation
+### Setup
 
 ```bash
-# Clone repository
-git clone https://github.com/shoumyac/BD-SME-Credit-Risk.git
-cd BD-SME-Credit-Risk
-
-# Create virtual environment
+git clone https://github.com/shoumyac/bd-sme-research.git
+cd bd-sme-research
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
+source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### Run Analysis
+### Run
 
 ```bash
-# Start Jupyter
-jupyter notebook
-
-# Open: notebooks/bd_sme_1200_complete_analysis.ipynb
-# Run all cells (Cell > Run All)
+jupyter notebook notebooks/bd_sme_1200_complete_analysis.ipynb
+# Run all cells — expected runtime: ~5–10 minutes
 ```
 
-**Expected Runtime:** ~5-10 minutes on standard laptop
+## Results
 
-## Key Results
+### Model Performance (5-Fold Stratified Cross-Validation)
 
-### Model Performance (5-Fold Cross-Validation)
+| Model | ROC-AUC | PR-AUC | Brier Score | Train–Test Gap |
+|---|---|---|---|---|
+| **LR (Tabular only)** | **0.900 ± 0.024** | **0.776 ± 0.045** | 0.194 | **0.017** |
+| LR (Tabular + Text) | 0.899 ± 0.023 | 0.780 ± 0.044 | 0.191 | 0.029 |
+| XGBoost | 0.875 ± 0.019 | 0.717 ± 0.035 | 0.174 | 0.125 |
+| Random Forest | 0.810 ± 0.019 | 0.611 ± 0.038 | 0.208 | 0.190 |
 
-| Model | Test ROC-AUC | Test PR-AUC | Brier Score | Train-Test Gap |
-|-------|--------------|-------------|-------------|----------------|
-| **Logistic Regression (Tabular Only)** | **0.900 ± 0.024** | **0.776 ± 0.045** | **0.194 ± 0.032** | **0.017** |
-| Logistic Regression (Tab + Text) | 0.899 ± 0.023 | 0.780 ± 0.044 | 0.191 ± 0.026 | 0.029 |
-| XGBoost | 0.875 ± 0.019 | 0.717 ± 0.035 | 0.174 ± 0.015 | 0.125 |
-| Random Forest | 0.810 ± 0.019 | 0.611 ± 0.038 | 0.208 ± 0.007 | 0.190 |
+### Top Predictive Features (Logistic Regression Coefficients)
 
-### Top 5 Most Important Features
-
-1. **late_payment_history** (±1.9) - Payment behavior dominates
-2. **loan_amount_bdt** (+1.74) - Larger loans increase risk
-3. **cashflow_stability** (-1.19) - Stable cashflow reduces risk
-4. **collateral_level** (±1.1) - Low collateral increases risk
-5. **monthly_profit_bdt** (-0.98) - Higher profit reduces risk
+| Rank | Feature | Coefficient |
+|---|---|---|
+| 1 | late_payment_history (Sometimes) | +1.944 |
+| 2 | late_payment_history (Never) | −1.909 |
+| 3 | loan_amount_bdt | +1.741 |
+| 4 | cashflow_stability | −1.190 |
+| 5 | collateral_level (Low) | +1.112 |
 
 ## Figures
 
-All figures are publication-ready (300 DPI) and located in `results/`:
+All figures are in `results/` at 300 DPI:
 
-1. **target_distribution.png** - Class balance
-2. **model_comparison.png** - Cross-validation performance
-3. **confusion_matrix.png** - Classification results
-4. **roc_curves_all_models.png** - ROC curves for all models
-5. **pr_curves_all_models.png** - Precision-Recall curves
-6. **calibration_curve.png** - Probability calibration
-7. **feature_importance_lr.png** - Top 20 features
-8. **shap_summary.png** - SHAP beeswarm plot
-9. **shap_bar.png** - SHAP feature importance
+| Figure | Description |
+|---|---|
+| `roc_curves_all_models.png` | ROC curves for all models |
+| `pr_curves_all_models.png` | Precision–Recall curves |
+| `calibration_curve.png` | Probability calibration |
+| `shap_summary.png` | SHAP beeswarm plot |
+| `shap_bar.png` | Mean absolute SHAP importance |
+| `feature_importance_lr.png` | Top 20 LR coefficients |
+| `confusion_matrix.png` | Best model confusion matrix |
+| `model_comparison.png` | CV performance comparison |
+| `target_distribution.png` | Class balance |
 
 ## Citation
 
-If you use this dataset or code in your research, please cite:
-
 ```bibtex
-@article{chowdhury2026sme,
-  title={AI-Driven Credit Risk Assessment for Bangladesh SMEs: Achieving 90\% Accuracy with Structured Data Alone},
-  author={Chowdhury, Shoumya and Das, Anmita and Paul, Sushanta},
+@article{chowdhury2026structured,
+  title={Structured Data Suffices: Machine Learning for {SME} Credit Risk Assessment in an Emerging Market},
+  author={Das, Anmita and Paul, Sushanta and Chowdhury, Shoumya},
   journal={Financial Innovation},
   year={2026},
-  note={Under review}
+  note={Under review},
+  doi={10.5281/zenodo.18525278}
 }
 ```
 
-**Zenodo DOI:** https://doi.org/10.5281/zenodo.XXXXXXX (to be updated)
+## Licence
 
-## License
-
-- **Code:** MIT License (see LICENSE file)
+- **Code:** MIT License
 - **Data:** Creative Commons Attribution 4.0 International (CC-BY 4.0)
-- **Paper:** Copyright © 2026 Authors. Submitted to Financial Innovation.
 
 ## Authors
 
-- **Shoumya Chowdhury** (Corresponding Author) - University of Melbourne - shoumyac@student.unimelb.edu.au
-- **Anmita Das** - University of Melbourne - aadas@student.unimelb.edu.au
-- **Sushanta Paul** - Bangladesh Customs, National Board of Revenue - sushanta.researcher@gmail.com
+- **Anmita Das** — University of Melbourne
+- **Sushanta Paul** — Bangladesh Customs, National Board of Revenue
+- **Shoumya Chowdhury** *(corresponding)* — University of Melbourne — shoumyac@student.unimelb.edu.au
 
-## Acknowledgments
+## Links
 
-We thank the financial institutions and microfinance organizations in Bangladesh that facilitated data collection, and the SME owners who participated in the survey.
-
-## Contact
-
-For questions or issues, please:
-- Open an issue on GitHub
-- Email: shoumyac@student.unimelb.edu.au
-
-## Related Links
-
-- **Paper:** [Link to be added after publication]
-- **Zenodo Dataset:** https://doi.org/10.5281/zenodo.XXXXXXX
-- **Financial Innovation Journal:** https://jfin-swufe.springeropen.com/
-
----
-
-**Last Updated:** February 2026  
-**Version:** 1.0.0  
-**Status:** Under Review
+- **Zenodo:** [https://doi.org/10.5281/zenodo.18525278](https://doi.org/10.5281/zenodo.18525278)
+- **Journal:** [Financial Innovation (Springer Nature)](https://link.springer.com/journal/40854)
