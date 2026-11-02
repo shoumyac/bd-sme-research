@@ -117,6 +117,7 @@ Code: MIT (`LICENSE`). Data and documentation: CC BY 4.0 (`LICENSE-DATA`).
 | v1 | 2026-02-08 | First release (doi:10.5281/zenodo.18525278). The description gave the data period as "2022 to 2023" (incorrect). Used for the IntelliSys 2026 chapter. |
 | v2.0 | 2026-06-05 | Second release (doi:10.5281/zenodo.20560302). Same CSV, same incorrect period. Used for the IntelliSys 2026 chapter. |
 | v3.0 | 2026-11-02 | Reorganised repository, corrected data description (loans originated July 2023 to June 2025, collected July 2024 to June 2026), added the explanation-drift analysis (doi:10.5281/zenodo.23883422). The CSV is unchanged. |
+| v3.1.0 | 2026-11-03 | Preprocessing fitted on training rows only and all results rerun; rank-graduation measures; audit on three public credit datasets; federated boosted trees with TreeSHAP; local versus shared KernelSHAP background; differentially private FedAvg (doi:10.5281/zenodo.23887723). |
 | v3.1.0 | 2026-11 | All preprocessing is now fitted on training rows only (also inside each cross-validation fold), so every federated result was regenerated; adds the rank-graduation compliance measures and the audit on three public credit datasets. The CSV is unchanged. |
 
 The data file `data/bangladesh_sme_1200_records.csv` has not changed in any version. Cite the version you use.
