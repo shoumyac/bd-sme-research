@@ -240,8 +240,12 @@ def run_dataset(name, Xtr, ytr, Xte, yte, part_fn, regimes):
 
 
 def main():
-    names = sys.argv[1:] or ["bangladesh", "german", "taiwan_default", "taiwan_bankruptcy"]
+    names = sys.argv[1:] or ["bangladesh", "german", "taiwan_default", "taiwan_bankruptcy", "lending_club"]
     R, F = [], []
+    if len(sys.argv) > 1:                                   # adding datasets: keep earlier rows
+        for f_, L in [("gbdt_fl_vs_reference", R), ("gbdt_noise_floor", F)]:
+            try: L += [r for r in pd.read_csv(f"{OUT}/{f_}.csv").to_dict("records") if r["dataset"] not in names]
+            except FileNotFoundError: pass
     for nm in names:
         if nm == "bangladesh":
             Xtr, ytr, Xte, yte = v2.Xtr, v2.ytr, v2.Xte, v2.yte
@@ -250,7 +254,7 @@ def main():
         else:
             Xtr, ytr, Xte, yte, pref, *_ = xd.prepare(nm)
             pf = lambda regime, seed, pref=pref, Xtr=Xtr, ytr=ytr: xd.partition_pref(pref, Xtr, ytr, regime, np.random.default_rng(seed))
-            regs = ["medium", "high"]
+            regs = ["natural"] if nm in xd.NATURAL else ["medium", "high"]
         r, f = run_dataset(nm, Xtr, ytr, Xte, yte, pf, regs); R += r; F.append(f)
         pd.DataFrame(R).to_csv(f"{OUT}/gbdt_fl_vs_reference.csv", index=False)
         pd.DataFrame(F).to_csv(f"{OUT}/gbdt_noise_floor.csv", index=False)

@@ -1,0 +1,11 @@
+\begin{tabular}{lccccc}
+\toprule
+Dataset & \makecell{XGBoost\\test AUC} & \makecell{Own trees\\test AUC} & \makecell{Margin\\correlation} & \makecell{Own vs XGBoost\\top-5 overlap} & \makecell{XGBoost noise floor:\\mean (5th pct)} \\
+\midrule
+Bangladeshi SME loans & 0.892 & 0.903 & 0.984 & 0.831 & 0.708 (0.626) \\
+German credit & 0.798 & 0.791 & 0.977 & 0.764 & 0.507 (0.433) \\
+Taiwan card default & 0.761 & 0.755 & 0.986 & 0.752 & 0.555 (0.458) \\
+Taiwan bankruptcy & 0.931 & 0.944 & 0.962 & 0.310 & 0.357 (0.246) \\
+Lending Club (by state) & 0.668 & 0.682 & 0.957 & 0.670 & 0.589 (0.539) \\
+\bottomrule
+\end{tabular}

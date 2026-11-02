@@ -144,12 +144,13 @@ w("fairness", rows)
 # ---------------------------------------------------------------- Table: three public credit datasets
 ER = pd.read_csv(f"{R}/ext_fl_vs_reference.csv"); EF = pd.read_csv(f"{R}/ext_noise_floor.csv"); EI = pd.read_csv(f"{R}/ext_dataset_info.csv")
 DN = {"german": "German credit", "taiwan_default": "Taiwan card default", "taiwan_bankruptcy": "Taiwan bankruptcy"}
+REG = lambda d: "natural" if d == "lending_club" else "high"
 rows = ["\\begin{tabular}{llccccccc}", "\\toprule",
         "Dataset & Model & \\makecell{Pooled\\\\test AUC} & \\makecell{Noise floor:\\\\mean (5th pct)} & FedAvg & FedProx & SCAFFOLD & Median & Isolated \\\\", "\\midrule"]
 for di, dsn in enumerate(DN):
     for m, title in [("LR", "LR"), ("MLP", "NN")]:
-        g = ER[(ER.dataset == dsn) & (ER.model == m) & (ER.regime == "high")]
-        fl = EF[(EF.dataset == dsn) & (EF.model == m) & (EF.regime == "high")]
+        g = ER[(ER.dataset == dsn) & (ER.model == m) & (ER.regime == REG(dsn))]
+        fl = EF[(EF.dataset == dsn) & (EF.model == m) & (EF.regime == REG(dsn))]
         fm, fp = fl.jac_mean.mean(), fl.jac_p05.mean(); info = EI[(EI.dataset == dsn) & (EI.model == m)].iloc[0]
         cells = []
         for k in ["fedavg", "fedprox", "scaffold", "median", "isolated"]:
@@ -184,7 +185,7 @@ rows = [r"\begin{tabular}{lcccccc}", r"\toprule", r"Dataset & \makecell{Pooled\\
 for dn, nm in DS:
     f = GF.loc[dn]; cells = []
     for mth in ["hist", "bagging", "cyclic", "isolated"]:
-        v = GB[(GB.dataset == dn) & (GB.regime == "high") & (GB.method == mth)].jac.mean()
+        v = GB[(GB.dataset == dn) & (GB.regime == REG(dn)) & (GB.method == mth)].jac.mean()
         cells.append(f"{v:.3f}" + (r"$^\dagger$" if v < f.jac_p05 else ""))
     rows.append(f"{nm} & {f.ref_test_auc:.3f} & {f.jac_mean:.3f} ({f.jac_p05:.3f}) & " + " & ".join(cells) + r" \\")
 rows += [r"\bottomrule", r"\end{tabular}"]
@@ -214,3 +215,43 @@ rows += [r"\bottomrule", r"\end{tabular}"]
 w("dp", rows)
 
 print("tables written:", sorted(os.listdir(OUT)))
+
+
+# ---------------------------------------------------------------- Tables: XGBoost check
+XV = pd.read_csv(f"{R}/xgb_validation.csv"); XB = pd.read_csv(f"{R}/xgb_fl_vs_reference.csv"); XF = pd.read_csv(f"{R}/xgb_noise_floor.csv").set_index("dataset")
+DS2 = DS + [("lending_club", "Lending Club (by state)")]
+rows = [r"\begin{tabular}{lccccc}", r"\toprule", r"Dataset & \makecell{XGBoost\\test AUC} & \makecell{Own trees\\test AUC} & \makecell{Margin\\correlation} & \makecell{Own vs XGBoost\\top-5 overlap} & \makecell{XGBoost noise floor:\\mean (5th pct)} \\", r"\midrule"]
+for dn, nm in DS2:
+    v = XV[XV.dataset == dn].iloc[0]; f = XF.loc[dn]
+    rows.append(f"{nm} & {v.xgb_test_auc:.3f} & {v.own_test_auc:.3f} & {v.margin_corr:.3f} & {v.own_vs_xgb_jac:.3f} & {f.jac_mean:.3f} ({f.jac_p05:.3f}) \\\\")
+rows += [r"\bottomrule", r"\end{tabular}"]
+w("xgb_valid", rows)
+rows = [r"\begin{tabular}{lcccccc}", r"\toprule", r"Dataset & \makecell{XGBoost\\test AUC} & \makecell{Noise floor:\\mean (5th pct)} & \makecell{Histogram\\(workers)} & Bagging & Cyclic & Isolated \\", r"\midrule"]
+for dn, nm in DS2:
+    f = XF.loc[dn]; cells = []
+    for mth in ["hist", "bagging", "cyclic", "isolated"]:
+        v = XB[(XB.dataset == dn) & (XB.regime == REG(dn)) & (XB.method == mth)].jac.mean()
+        cells.append(f"{v:.3f}" + (r"$^\dagger$" if v < f.jac_p05 else ""))
+    rows.append(f"{nm} & {f.ref_test_auc:.3f} & {f.jac_mean:.3f} ({f.jac_p05:.3f}) & " + " & ".join(cells) + r" \\")
+rows += [r"\bottomrule", r"\end{tabular}"]
+w("xgb_all", rows)
+
+
+# ---------------------------------------------------------------- Table: Lending Club with natural clients (by state)
+fl = {m: EF[(EF.dataset == "lending_club") & (EF.model == m)].iloc[0] for m in ["LR", "MLP"]}
+inf = {m: EI[(EI.dataset == "lending_club") & (EI.model == m)].iloc[0] for m in ["LR", "MLP"]}
+ob, xb = GB[GB.dataset == "lending_club"], XB[XB.dataset == "lending_club"]
+of, xf = GF.loc["lending_club"], XF.loc["lending_club"]
+def cell(v, p05): return f"{v:.3f}" + (r"$^\dagger$" if v < p05 else "")
+rows = [r"\begin{tabular}{lcccc}", r"\toprule", r"Method & \makecell{Logistic\\regression} & \makecell{Neural\\network} & \makecell{Own boosted\\trees} & XGBoost \\", r"\midrule",
+        f"Pooled model, test ROC-AUC & {inf['LR'].ref_test_auc:.3f} & {inf['MLP'].ref_test_auc:.3f} & {of.ref_test_auc:.3f} & {xf.ref_test_auc:.3f} \\\\",
+        f"Retraining noise floor: mean (5th pct) & {fl['LR'].jac_mean:.3f} ({fl['LR'].jac_p05:.3f}) & {fl['MLP'].jac_mean:.3f} ({fl['MLP'].jac_p05:.3f}) & {of.jac_mean:.3f} ({of.jac_p05:.3f}) & {xf.jac_mean:.3f} ({xf.jac_p05:.3f}) \\\\", r"\midrule"]
+for k, nm in [("fedavg", "FedAvg"), ("fedprox", "FedProx"), ("scaffold", "SCAFFOLD"), ("median", "Coordinate-wise median")]:
+    c = [cell(ER[(ER.dataset == "lending_club") & (ER.model == m) & (ER.method == k)].jac.mean(), fl[m].jac_p05) for m in ["LR", "MLP"]]
+    rows.append(f"{nm} & {c[0]} & {c[1]} & -- & -- \\\\")
+for k, nm in [("hist", "Histogram aggregation"), ("bagging", "Per-client ensembles, averaged"), ("cyclic", "Cyclic (round robin)")]:
+    rows.append(f"{nm} & -- & -- & {cell(ob[ob.method == k].jac.mean(), of.jac_p05)} & {cell(xb[xb.method == k].jac.mean(), xf.jac_p05)} \\\\")
+c = [cell(ER[(ER.dataset == "lending_club") & (ER.model == m) & (ER.method == "isolated")].jac.mean(), fl[m].jac_p05) for m in ["LR", "MLP"]]
+rows.append(f"Isolated local & {c[0]} & {c[1]} & {cell(ob[ob.method == 'isolated'].jac.mean(), of.jac_p05)} & {cell(xb[xb.method == 'isolated'].jac.mean(), xf.jac_p05)} \\\\")
+rows += [r"\bottomrule", r"\end{tabular}"]
+w("natural", rows)

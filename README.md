@@ -56,6 +56,8 @@ Every column is described, with value counts and ranges, in [`data/DATA_DICTIONA
 │   ├── federated_gbdt.py                  federated histogram boosted trees (SecureBoost style), exact TreeSHAP drift
 │   ├── shared_background_shap.py          KernelSHAP with pooled, local and shared federated backgrounds
 │   ├── dp_fedavg.py                       differentially private FedAvg (DP-SGD, RDP accountant), epsilon sweep
+│   ├── xgboost_check.py                   validation against XGBoost and federated XGBoost (histogram workers, bagging, cyclic)
+│   ├── fetch_lending_club.py              downloads Lending Club loans and samples 1,500 per state (natural clients)
 │   ├── make_figures.py, make_tables.py    figures and LaTeX tables for the manuscript
 │   ├── cv_auc.py, cv_extra.py             5-fold cross-validated ROC-AUC
 │   └── results_*/                         every output file (CSV, JSON, PNG)

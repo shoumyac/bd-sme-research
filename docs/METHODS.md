@@ -37,6 +37,8 @@ Fifty bootstrap resamples of the 960 training rows are drawn, the model is retra
 * `federated_gbdt.py` (`gbdt_*.csv`): federated histogram gradient boosting (clients send per-bin gradient and Hessian sums, the server picks splits; 16 bins, depth 3, 50 trees), compared with per-client bagging, cyclic training and isolated models; explained with exact path-dependent TreeSHAP; four datasets.
 * `shared_background_shap.py` (`sbg_*.csv`): KernelSHAP on FedAvg models with a pooled random background, each client's local background, and a shared federated k-means background built from client sums and counts.
 * `dp_fedavg.py` (`dp_fedavg.csv`): FedAvg logistic regression with per-example clipping and Gaussian noise (DP-SGD per client), Renyi accountant (delta 1e-5, no subsampling amplification), epsilon from 1 to 32.
+* `xgboost_check.py` (`xgb_*.csv`): own pooled trees against XGBoost, and the federated variants rerun with XGBoost (histogram aggregation across worker processes through XGBoost's collective communicator, per-client bagging, cyclic continuation, isolated), five datasets.
+* `fetch_lending_club.py` and `external_datasets.py lending_club`: Lending Club loans (2013 and 2014, CC0 mirror on Hugging Face) with the borrower's state (CA, NY, TX, FL) as natural clients, 1,500 loans each; one deterministic regime called `natural`.
 
 ## Limitations
 

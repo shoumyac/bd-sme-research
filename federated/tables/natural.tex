@@ -1,0 +1,17 @@
+\begin{tabular}{lcccc}
+\toprule
+Method & \makecell{Logistic\\regression} & \makecell{Neural\\network} & \makecell{Own boosted\\trees} & XGBoost \\
+\midrule
+Pooled model, test ROC-AUC & 0.688 & 0.657 & 0.682 & 0.668 \\
+Retraining noise floor: mean (5th pct) & 0.742 (0.651) & 0.544 (0.493) & 0.591 (0.528) & 0.589 (0.539) \\
+\midrule
+FedAvg & 0.973 & 0.764 & -- & -- \\
+FedProx & 0.972 & 0.766 & -- & -- \\
+SCAFFOLD & 0.977 & 0.829 & -- & -- \\
+Coordinate-wise median & 0.711 & 0.691 & -- & -- \\
+Histogram aggregation & -- & -- & 0.969 & 0.860 \\
+Per-client ensembles, averaged & -- & -- & 0.710 & 0.681 \\
+Cyclic (round robin) & -- & -- & 0.557 & 0.552 \\
+Isolated local & 0.624$^\dagger$ & 0.454$^\dagger$ & 0.510$^\dagger$ & 0.518$^\dagger$ \\
+\bottomrule
+\end{tabular}

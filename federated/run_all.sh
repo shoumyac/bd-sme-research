@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Reproduce every result in federated/. Takes about 30 minutes on one CPU core (external-dataset audit about 7, KernelSHAP comparison about 11, boosted trees about 3, DP-FedAvg about 1).
+# Reproduce every result in federated/. Takes about 40 minutes on two CPU cores (external-dataset audit about 7, KernelSHAP comparison about 11, boosted trees about 3, DP-FedAvg about 1, XGBoost and Lending Club about 5).
 # Run from anywhere; the scripts expect to be run from this folder (they read ../data/).
 set -euo pipefail
 cd "$(dirname "$0")"
@@ -20,7 +20,10 @@ python safe_metrics.py                             # rank-graduation accuracy, r
 python fairness_check.py                           # held-out group gaps, pooled model vs FedAvg    -> results_drift/e7_fairness.csv
 python fetch_external_data.py                    # downloads three public credit datasets into ../data/external/ (needs internet)
 python external_datasets.py                        # audit on German credit, Taiwan card default, Taiwan bankruptcy -> results_drift/ext_*.csv
-python federated_gbdt.py                           # federated histogram boosted trees + TreeSHAP    -> results_drift/gbdt_*.csv
+python fetch_lending_club.py                       # downloads Lending Club loans (1.7 GB, CC0) and samples 1,500 per state (CA NY TX FL) -> ../data/external/
+python external_datasets.py lending_club           # audit with natural clients (the four states)      -> results_drift/ext_*.csv (adds rows)
+python federated_gbdt.py                           # federated histogram boosted trees + TreeSHAP, five datasets -> results_drift/gbdt_*.csv
+python xgboost_check.py                            # validation against XGBoost and federated XGBoost (needs pip install xgboost) -> results_drift/xgb_*.csv
 python shared_background_shap.py                   # KernelSHAP pooled / local / shared federated background -> results_drift/sbg_*.csv
 python dp_fedavg.py                                # differentially private FedAvg, epsilon sweep    -> results_drift/dp_fedavg.csv
 python make_figures.py                             # figures for the manuscript                     -> figures/

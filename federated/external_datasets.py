@@ -70,6 +70,26 @@ def load_taiwan_bankruptcy():
     return df, y, list(df.columns), []
 
 
+def load_lending_club():
+    """Natural clients: the borrower's US state (CA, NY, TX, FL), 1,500 loans each; see fetch_lending_club.py."""
+    df = pd.read_csv(f"{DATA}/lending_club.csv")
+    y = df["bad"].values.astype(int)
+    df["fico"] = (df.fico_range_low + df.fico_range_high) / 2
+    df["annual_inc"] = np.log1p(df.annual_inc); df["revol_bal"] = np.log1p(df.revol_bal)
+    df["emp_length"] = df.emp_length.fillna("unknown")
+    df = df.drop(columns=["bad", "fico_range_low", "fico_range_high"])
+    state = df.pop("addr_state")
+    num = ["loan_amnt", "annual_inc", "dti", "delinq_2yrs", "inq_last_6mths", "open_acc", "pub_rec", "revol_bal", "revol_util", "total_acc", "fico"]
+    cat = ["term", "emp_length", "home_ownership", "verification_status", "purpose"]
+    for c in num: df[c] = df[c].fillna(df[c].median())
+    df["_state"] = state.values
+    return df, y, num, cat
+
+
+def pref_lending_club(df):
+    return np.c_[[(df["_state"].values == s) * 1.0 for s in ["CA", "NY", "TX", "FL"]]].T
+
+
 # ------------------------------------------------------------------ stylised institution archetypes
 def pref_german(df):
     p = df["purpose"].values; a = df["age_in_years"].values
@@ -91,11 +111,15 @@ def pref_bankruptcy(df):
 
 
 SPECS = {"german": (load_german, pref_german), "taiwan_default": (load_taiwan_default, pref_taiwan_default),
-         "taiwan_bankruptcy": (load_taiwan_bankruptcy, pref_bankruptcy)}
+         "taiwan_bankruptcy": (load_taiwan_bankruptcy, pref_bankruptcy), "lending_club": (load_lending_club, pref_lending_club)}
+NATURAL = {"lending_club"}            # clients are given by the data (state), not constructed; one deterministic regime
+DEFAULT_SPECS = ["german", "taiwan_default", "taiwan_bankruptcy"]
 
 
 def partition_pref(pref, X, y, regime, rng, K=3):
     n = len(y)
+    if regime == "natural":
+        asg = pref.argmax(1); return [(X[asg == k], y[asg == k], None) for k in range(pref.shape[1])]
     if regime == "high":
         asg = pref.argmax(1); z = pref.sum(1) == 0; asg[z] = rng.integers(0, 3, z.sum())
     else:
@@ -139,8 +163,8 @@ def run(name):
         T0 = float(np.quantile(model.prob(pref, Xtr), 1 - DECLINE_SHARE))
         auc_ref = roc_auc_score(yte, model.prob(pref, Xte))
         info.append(dict(dataset=name, model=mn, n_train=len(ytr), n_test=len(yte), d=d, bad_rate=float(ytr.mean()), ref_test_auc=auc_ref, decline_threshold=T0))
-        for regime in ["medium", "high"]:
-            for seed in SEEDS:
+        for regime in (["natural"] if name in NATURAL else ["medium", "high"]):
+            for seed in ([0] if name in NATURAL else SEEDS):
                 cl = partition_pref(pref_tr, Xtr, ytr, regime, np.random.default_rng(seed))
                 ds = ed.declined_sets(model, pref, cl, T0)
                 locs = [v2.local_train(model, model.init(), Xk, yk, 300, 0.5) for Xk, yk, _ in cl]
@@ -161,8 +185,14 @@ def run(name):
 
 
 if __name__ == "__main__":
-    names = sys.argv[1:] or list(SPECS)
+    names = sys.argv[1:] or DEFAULT_SPECS
     R, F, I = [], [], []
+    if len(sys.argv) > 1:                                   # keep earlier rows when only adding datasets
+        for f_, L in [("ext_fl_vs_reference", R), ("ext_noise_floor", F), ("ext_dataset_info", I)]:
+            try: L += pd.read_csv(f"{OUT}/{f_}.csv").to_dict("records")
+            except FileNotFoundError: pass
+        done = set(r["dataset"] for r in R)
+        R[:] = [r for r in R if r["dataset"] not in names]; F[:] = [r for r in F if r["dataset"] not in names]; I[:] = [r for r in I if r["dataset"] not in names]
     for n in names:
         r, f, i = run(n); R += r; F += f; I += i
     pd.DataFrame(R).to_csv(f"{OUT}/ext_fl_vs_reference.csv", index=False)

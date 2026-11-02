@@ -1,0 +1,11 @@
+\begin{tabular}{lcccccc}
+\toprule
+Dataset & \makecell{XGBoost\\test AUC} & \makecell{Noise floor:\\mean (5th pct)} & \makecell{Histogram\\(workers)} & Bagging & Cyclic & Isolated \\
+\midrule
+Bangladeshi SME loans & 0.892 & 0.708 (0.626) & 0.917 & 0.780 & 0.581$^\dagger$ & 0.663 \\
+German credit & 0.798 & 0.507 (0.433) & 0.838 & 0.526 & 0.414$^\dagger$ & 0.411$^\dagger$ \\
+Taiwan card default & 0.761 & 0.555 (0.458) & 0.800 & 0.508 & 0.434$^\dagger$ & 0.493 \\
+Taiwan bankruptcy & 0.931 & 0.357 (0.246) & 0.544 & 0.300 & 0.295 & 0.326 \\
+Lending Club (by state) & 0.668 & 0.589 (0.539) & 0.860 & 0.681 & 0.552 & 0.518$^\dagger$ \\
+\bottomrule
+\end{tabular}
