@@ -1,156 +1,99 @@
-# AI-Driven Credit Risk Assessment for Bangladesh SMEs
+# Bangladesh SME Credit Risk: Dataset and Federated Explanation Analysis
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18525278.svg)](https://doi.org/10.5281/zenodo.18525278)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![Data: CC-BY 4.0](https://img.shields.io/badge/Data-CC--BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18525277.svg)](https://doi.org/10.5281/zenodo.18525277)
+[![Code: MIT](https://img.shields.io/badge/code-MIT-yellow.svg)](LICENSE)
+[![Data: CC BY 4.0](https://img.shields.io/badge/data-CC%20BY%204.0-lightgrey.svg)](LICENSE-DATA)
 
-## Overview
+A public dataset of 1,200 Bangladeshi SME loans and the code that studies it in two ways:
 
-This repository contains the dataset and complete analysis pipeline for:
+1. **Centralised benchmark** (`centralised_benchmark/`): a notebook comparing classifiers and explanation methods on the pooled data.
+2. **Federated explanation analysis** (`federated/`): simulated federations of institutions, and a test of whether federated training changes the reasons a declined applicant would be given, compared with training on the pooled data.
 
-> **Structured Data Suffices: Machine Learning for SME Credit Risk Assessment in an Emerging Market**
->
-> Submitted to *Financial Innovation* (Springer Nature)
+The DOI above is the concept DOI and always resolves to the latest archived version.
 
-**Key Findings:**
-- **0.900 ROC-AUC** with simple logistic regression on structured features (5-fold CV)
-- Text features (TF-IDF from loan narratives) add **<1% value** — structured data alone suffices
-- **Payment history** is the dominant predictor (coefficient ±1.9)
-- Train–test gap of only **0.017**, confirming strong generalisation
-- Simple models outperform XGBoost (0.875) and Random Forest (0.810)
+## The data
 
-## Repository Structure
+| | |
+|---|---|
+| File | `data/bangladesh_sme_1200_records.csv` (1,200 rows, 27 columns, no missing values) |
+| Source | BASIC Bank Limited and Bangladesh Bank, obtained for research with the permission of the Ministry of Finance of Bangladesh |
+| Loans originated | July 2023 to June 2025 |
+| Collected | July 2024 to June 2026. Each record was taken at the first payment date after the loan's first anniversary |
+| Label | `target_missed_payment`: 1 if the SME missed any scheduled payment in the 12 months after disbursement (303 of 1,200, 25.25%) |
+| Privacy | The research extract contains no personal identifiers or contact details |
+| Licence | CC BY 4.0 |
+
+Every column is described, with value counts and ranges, in [`data/DATA_DICTIONARY.md`](data/DATA_DICTIONARY.md). The label is wider than the Basel default definition (90 days past due), and the file has no rejected applicants.
+
+## Repository map
 
 ```
 .
-├── data/
-│   └── bangladesh_sme_1200_records.csv   # 1,200 SME loan applications
-├── notebooks/
-│   └── bd_sme_1200_complete_analysis.ipynb   # Complete analysis pipeline
-├── results/                              # Generated outputs
-│   ├── calibration_curve.png
-│   ├── confusion_matrix.png
-│   ├── cv_results_summary.csv
-│   ├── feature_importance_lr.csv
-│   ├── feature_importance_lr.png
-│   ├── model_comparison.png
-│   ├── pr_curves_all_models.png
-│   ├── roc_curves_all_models.png
-│   ├── shap_bar.png
-│   ├── shap_summary.png
-│   └── target_distribution.png
-├── CITATION.cff
-├── LICENSE                               # MIT License
 ├── README.md
-└── requirements.txt
+├── CITATION.cff, .zenodo.json         citation and archive metadata
+├── LICENSE (MIT, code), LICENSE-DATA (CC BY 4.0, data)
+├── requirements.txt                   federated experiments
+├── data/
+│   ├── bangladesh_sme_1200_records.csv
+│   └── DATA_DICTIONARY.md
+├── centralised_benchmark/             first analysis of the data (notebook, figures, own requirements)
+├── federated/                         federated experiments
+│   ├── run_all.sh                     reproduces everything in about 10 minutes
+│   ├── federated_xai_experiment.py        horizontal FL, Dirichlet stress test, fairness
+│   ├── federated_xai_experiment_v2.py     models, partitions, aggregators; model comparison, client scaling, DP noise
+│   ├── federated_xai_experiment_v3.py     vertical and personalised federation
+│   ├── mitigation.py                      shared-baseline explanations and the dispersion proposition
+│   ├── explanation_drift.py               agreement with the pooled-data reference and the retraining noise floor
+│   ├── summarise_drift.py                 summary tables
+│   ├── cv_auc.py, cv_extra.py             5-fold cross-validated ROC-AUC
+│   └── results_*/                         every output file (CSV, JSON, PNG)
+└── docs/METHODS.md                    definitions and design of the explanation-drift analysis
 ```
 
-## Dataset
-
-**File:** `data/bangladesh_sme_1200_records.csv`
-
-1,200 SME loan applications from Bangladesh (2022–2023) comprising:
-
-| Feature type | Count | Examples |
-|---|---|---|
-| Numeric | 8 | monthly revenue, profit, loan amount, cashflow stability |
-| Categorical | 11 | sector, division, late payment history, collateral level |
-| Text | 4 | business description, loan purpose, repayment plan, risk factors |
-| Target | 1 | missed_payment_last_12m (binary) |
-
-**Class distribution:** 897 non-default (74.8%) / 303 default (25.2%)
-
-**Ethics:** All data anonymised. No personally identifiable information retained. Written informed consent obtained by partner financial institutions at time of loan application.
-
-**Data licence:** CC-BY 4.0
-
-## Reproduction
-
-### Requirements
-
-- Python 3.8+
-- Jupyter Notebook
-
-### Setup
+## Quick start
 
 ```bash
 git clone https://github.com/shoumyac/bd-sme-research.git
 cd bd-sme-research
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+python -m venv venv && source venv/bin/activate      # Windows: venv\Scripts\activate
 pip install -r requirements.txt
+bash federated/run_all.sh
 ```
 
-### Run
+All randomness is seeded. The results stored in this repository were produced with numpy 2.5.3, pandas 3.0.5, scipy 1.18.1, scikit-learn 1.9.1 and Python 3.13. The federated and explanation-drift results reproduce exactly. The tree-based classifiers in the ten-model comparison (`results_federated_v2/model_zoo.csv`) can differ by up to about 0.01 ROC-AUC across scikit-learn versions.
 
-```bash
-jupyter notebook notebooks/bd_sme_1200_complete_analysis.ipynb
-# Run all cells — expected runtime: ~5–10 minutes
-```
+## What the federated analysis asks
 
-## Results
+A federated model is not expected to explain a decision exactly as an isolated model would, so a raw difference between explanations is not a failure. The question here is narrower: **does federated training change the reasons for a decline, relative to a model trained on the pooled data, by more than ordinary retraining changes them?**
 
-### Model Performance (5-Fold Stratified Cross-Validation)
+* Clients are simulated by splitting the data into three institution archetypes (low, medium and high heterogeneity) and, separately, by Dirichlet label skew. All records come from one bank and the central bank, so the archetypes are stylised, not real institutions.
+* Explanations are exact linear SHAP values for logistic regression and Integrated Gradients for a one-hidden-layer network.
+* The comparison is made only for applicants the pooled-data reference model declines (score at least 0.30), because only those applicants receive an adverse-action notice.
+* Agreement is the overlap (Jaccard) of the top five cited reasons, the share of cases with the same top reason, and the cosine similarity of the attribution vectors.
+* A retraining noise floor (50 bootstrap retrainings of the pooled model) shows how much explanations move under routine retraining.
 
-| Model | ROC-AUC | PR-AUC | Brier Score | Train–Test Gap |
-|---|---|---|---|---|
-| **LR (Tabular only)** | **0.900 ± 0.024** | **0.776 ± 0.045** | 0.194 | **0.017** |
-| LR (Tabular + Text) | 0.899 ± 0.023 | 0.780 ± 0.044 | 0.191 | 0.029 |
-| XGBoost | 0.875 ± 0.019 | 0.717 ± 0.035 | 0.174 | 0.125 |
-| Random Forest | 0.810 ± 0.019 | 0.611 ± 0.038 | 0.208 | 0.190 |
+Full definitions are in [`docs/METHODS.md`](docs/METHODS.md). A selection of the verified results, for logistic regression under the high-heterogeneity partition (mean top-5 overlap with the pooled reference; the retraining noise floor is 0.829 with a 5th percentile of 0.763):
 
-### Top Predictive Features (Logistic Regression Coefficients)
-
-| Rank | Feature | Coefficient |
+| Method | Top-5 overlap | Same top reason |
 |---|---|---|
-| 1 | late_payment_history (Sometimes) | +1.944 |
-| 2 | late_payment_history (Never) | −1.909 |
-| 3 | loan_amount_bdt | +1.741 |
-| 4 | cashflow_stability | −1.190 |
-| 5 | collateral_level (Low) | +1.112 |
+| FedAvg | 0.900 | 0.972 |
+| FedProx | 0.895 | 0.967 |
+| SCAFFOLD | 0.855 | 0.915 |
+| Coordinate-wise median | 0.738 | 0.843 |
+| Isolated local models | 0.782 | 0.839 |
 
-## Figures
+All tables, including the multilayer perceptron, client-count, differential-privacy, label-skew and decline-threshold sweeps, are in `federated/results_drift/summary_*.csv`.
 
-All figures are in `results/` at 300 DPI:
+## Citing
 
-| Figure | Description |
-|---|---|
-| `roc_curves_all_models.png` | ROC curves for all models |
-| `pr_curves_all_models.png` | Precision–Recall curves |
-| `calibration_curve.png` | Probability calibration |
-| `shap_summary.png` | SHAP beeswarm plot |
-| `shap_bar.png` | Mean absolute SHAP importance |
-| `feature_importance_lr.png` | Top 20 LR coefficients |
-| `confusion_matrix.png` | Best model confusion matrix |
-| `model_comparison.png` | CV performance comparison |
-| `target_distribution.png` | Class balance |
-
-## Citation
-
-```bibtex
-@article{chowdhury2026structured,
-  title={Structured Data Suffices: Machine Learning for {SME} Credit Risk Assessment in an Emerging Market},
-  author={Das, Anmita and Paul, Sushanta and Chowdhury, Shoumya},
-  journal={Financial Innovation},
-  year={2026},
-  note={Under review},
-  doi={10.5281/zenodo.18525278}
-}
-```
-
-## Licence
-
-- **Code:** MIT License
-- **Data:** Creative Commons Attribution 4.0 International (CC-BY 4.0)
+Please cite the archived dataset and code (see `CITATION.cff`, or use GitHub's "Cite this repository"). Manuscripts that use this repository are in preparation and will be linked here when public.
 
 ## Authors
 
-- **Anmita Das** — University of Melbourne
-- **Sushanta Paul** — Bangladesh Customs, National Board of Revenue
-- **Shoumya Chowdhury** *(corresponding)* — University of Melbourne — shoumyac@student.unimelb.edu.au
+* Shoumya Chowdhury (corresponding), University of Melbourne, shoumyac@student.unimelb.edu.au
+* Anmita Das, University of Melbourne
+* Sushanta Paul, Bangladesh Customs, National Board of Revenue
 
-## Links
+## Licence
 
-- **Zenodo:** [https://doi.org/10.5281/zenodo.18525278](https://doi.org/10.5281/zenodo.18525278)
-- **Journal:** [Financial Innovation (Springer Nature)](https://link.springer.com/journal/40854)
+Code: MIT (`LICENSE`). Data and documentation: CC BY 4.0 (`LICENSE-DATA`).

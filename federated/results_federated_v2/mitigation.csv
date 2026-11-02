@@ -1,0 +1,9 @@
+model,setting,S_cc,S_rank,J5,violation
+LR,per-client baseline,0.9238,0.8896,0.5873,0.7167
+LR,shared baseline (mitigation),0.9286,0.9743,0.7778,0.7111
+MLP,per-client baseline,0.8564,0.8561,0.7778,0.7444
+MLP,shared baseline (mitigation),0.8653,0.9224,1.0,0.7833
+LR,Dirichlet a=0.1 per-client,0.5416,0.9884,1.0,0.7389
+LR,Dirichlet a=0.1 shared (mitig.),0.5548,0.9971,1.0,0.7389
+MLP,Dirichlet a=0.1 per-client,0.862,0.9567,0.6667,0.8
+MLP,Dirichlet a=0.1 shared (mitig.),0.8772,0.9869,0.6667,0.7583

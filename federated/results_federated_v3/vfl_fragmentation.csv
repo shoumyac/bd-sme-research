@@ -1,0 +1,3 @@
+model,reasons_per_instance,single_party_coverage,party_local_vs_global_rho
+LR,2.121,0.625,0.666
+MLP,2.304,0.618,0.671

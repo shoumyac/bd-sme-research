@@ -1,0 +1,13 @@
+model,regime,aggregator,cv_auc,cv_std
+LR,high,centralized,0.8996,0.0237
+LR,high,fedavg,0.8948,0.0259
+LR,high,fedprox,0.8947,0.0261
+LR,high,scaffold,0.8876,0.0337
+LR,high,median,0.8843,0.0295
+LR,high,isolated,0.8549,0.0289
+MLP,high,centralized,0.9008,0.0175
+MLP,high,fedavg,0.8961,0.0214
+MLP,high,fedprox,0.8972,0.0257
+MLP,high,scaffold,0.8986,0.023
+MLP,high,median,0.8841,0.0317
+MLP,high,isolated,0.8418,0.0219

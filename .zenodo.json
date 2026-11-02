@@ -1,0 +1,39 @@
+{
+  "title": "AI-Driven Credit Risk Assessment for Bangladesh SMEs: Dataset and Analysis Code",
+  "upload_type": "dataset",
+  "description": "<p>1,200 SME loan records from Bangladesh, supplied by BASIC Bank Limited and Bangladesh Bank with the permission of the Ministry of Finance of Bangladesh (loans originated July 2023 to June 2025; collected July 2024 to June 2026), together with the code for (1) a centralised benchmark and (2) federated explanation experiments that test whether federated training changes the reasons given to declined applicants relative to a model trained on the pooled data, against a retraining noise floor. The research extract contains no personal identifiers or contact details. Data licence: CC BY 4.0. Code licence: MIT. Version 3.0 reorganises the repository, corrects the data description, replaces mislabelled scripts and adds the explanation-drift analysis.</p>",
+  "creators": [
+    {
+      "name": "Chowdhury, Shoumya",
+      "affiliation": "University of Melbourne",
+      "orcid": "0009-0005-5552-1094"
+    },
+    {
+      "name": "Das, Anmita",
+      "affiliation": "University of Melbourne",
+      "orcid": "0009-0000-1401-0494"
+    },
+    {
+      "name": "Paul, Sushanta",
+      "affiliation": "Bangladesh Customs, National Board of Revenue",
+      "orcid": "0009-0007-8071-6971"
+    }
+  ],
+  "license": "cc-by-4.0",
+  "access_right": "open",
+  "keywords": [
+    "credit risk",
+    "SME finance",
+    "Bangladesh",
+    "federated learning",
+    "explainable AI",
+    "SHAP"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/shoumyac/bd-sme-research",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    }
+  ]
+}
