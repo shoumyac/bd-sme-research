@@ -1,0 +1,11 @@
+\begin{tabular}{llcccccc}
+\toprule
+Model & Regime & \makecell{Noise floor:\\mean (5th pct)} & \makecell{Same model,\\other background} & \makecell{Pooled\\background} & \makecell{Local\\backgrounds} & \makecell{Shared federated\\background} \\
+\midrule
+Logistic regression & medium & 0.772 (0.723) & 0.714 & 0.884 & 0.705 [3/5] & 0.778 \\
+ & high & 0.772 (0.723) & 0.714 & 0.869 & 0.662 [4/5] & 0.765 \\
+\midrule
+Neural network & medium & 0.696 (0.651) & 0.737 & 0.815 & 0.684 & 0.744 \\
+ & high & 0.696 (0.651) & 0.737 & 0.797 & 0.654 [2/5] & 0.757 \\
+\bottomrule
+\end{tabular}

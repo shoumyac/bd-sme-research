@@ -1,0 +1,15 @@
+\begin{tabular}{lcccccc}
+\toprule
+Setting & \makecell{Noise\\multiplier $z$} & \makecell{Test\\ROC-AUC} & \makecell{Top-5\\overlap} & sd & \makecell{Partitions\\below floor} \\
+\midrule
+FedAvg, non-private &  & 0.876 & 0.900 & 0.000 & 0/5 \\
+Clipping only ($C=2$, no noise) &  & 0.864 & 0.809 & 0.000 & 0/5 \\
+$\varepsilon=32$ & 4.2 & 0.867 & 0.791 & 0.016 & 0/5 \\
+$\varepsilon=16$ & 7.2 & 0.868 & 0.772 & 0.021 & 2/5 \\
+$\varepsilon=8$ & 13.1 & 0.866 & 0.720 & 0.028 & 5/5 \\
+$\varepsilon=4$ & 24.6 & 0.853 & 0.613 & 0.037 & 5/5 \\
+$\varepsilon=2$ & 47.4 & 0.814 & 0.450 & 0.098 & 5/5 \\
+$\varepsilon=1$ & 93.0 & 0.750 & 0.306 & 0.078 & 5/5 \\
+Retraining noise floor: mean (5th pct) & & & 0.829 (0.764) & & \\
+\bottomrule
+\end{tabular}

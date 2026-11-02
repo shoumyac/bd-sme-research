@@ -12,6 +12,7 @@ ORDER = ["fedavg", "fedprox", "scaffold", "median", "isolated"]
 
 
 def w(name, lines):
+    lines = [l + "\\" if l.endswith("\\") and not l.endswith("\\\\") else l for l in lines]   # row terminators written as one backslash
     open(f"{OUT}/{name}.tex", "w").write("\n".join(lines) + "\n")
 
 
@@ -161,4 +162,55 @@ w("external", rows)
 # ---------------------------------------------------------------- Table: concentration of FL sources (for text reference)
 cs = pd.read_csv(f"{R}/e5_concentration.csv"); cs = cs[cs.source != "reference"]
 cs.to_csv(f"{OUT}/concentration_sources.csv", index=False)
+
+# ---------------------------------------------------------------- Tables: boosted trees, shared background, DP
+GB = pd.read_csv(f"{R}/gbdt_fl_vs_reference.csv"); GF = pd.read_csv(f"{R}/gbdt_noise_floor.csv").set_index("dataset")
+GN = {"hist": "Histogram aggregation (federated)", "bagging": "Per-client ensembles, averaged", "cyclic": "Cyclic (round robin)",
+      "hist_noise_0.005": r"Histogram aggregation, noise $\sigma=0.005$", "hist_noise_0.02": r"Histogram aggregation, noise $\sigma=0.02$",
+      "isolated": "Isolated local"}
+rows = [r"\begin{tabular}{lccccl}", r"\toprule", r"Setting & \makecell{Test\\ROC-AUC} & \makecell{Top-5\\overlap} & \makecell{Same top\\reason} & Cosine & \makecell{Below floor\\on} \\", r"\midrule"]
+fb = GF.loc["bangladesh"]
+rows.append(f"Pooled boosted trees (reference) & {fb.ref_test_auc:.3f} & 1 & 1 & 1 & \\")
+for mth in ["hist", "bagging", "cyclic", "hist_noise_0.005", "hist_noise_0.02", "isolated"]:
+    g = GB[(GB.dataset == "bangladesh") & (GB.regime == "high") & (GB.method == mth)]
+    below = [n for n, c, t in [("overlap", "jac", "jac_p05"), ("top reason", "top1", "top1_p05"), ("cosine", "cos", "cos_p05")] if g[c].mean() < fb[t]]
+    rows.append(f"{GN[mth]} & {g.test_auc.mean():.3f} & {g.jac.mean():.3f} & {g.top1.mean():.3f} & {g.cos.mean():.3f} & {', '.join(below) if below else 'none'} \\")
+rows.append(f"Retraining noise floor: mean (5th pct) & & {fb.jac_mean:.3f} ({fb.jac_p05:.3f}) & {fb.top1_mean:.3f} ({fb.top1_p05:.3f}) & {fb.cos_mean:.3f} ({fb.cos_p05:.3f}) & \\")
+rows += [r"\bottomrule", r"\end{tabular}"]
+w("gbdt", rows)
+
+DS = [("bangladesh", "Bangladeshi SME loans"), ("german", "German credit"), ("taiwan_default", "Taiwan card default"), ("taiwan_bankruptcy", "Taiwan bankruptcy")]
+rows = [r"\begin{tabular}{lcccccc}", r"\toprule", r"Dataset & \makecell{Pooled\\test AUC} & \makecell{Noise floor:\\mean (5th pct)} & Histogram & Bagging & Cyclic & Isolated \\", r"\midrule"]
+for dn, nm in DS:
+    f = GF.loc[dn]; cells = []
+    for mth in ["hist", "bagging", "cyclic", "isolated"]:
+        v = GB[(GB.dataset == dn) & (GB.regime == "high") & (GB.method == mth)].jac.mean()
+        cells.append(f"{v:.3f}" + (r"$^\dagger$" if v < f.jac_p05 else ""))
+    rows.append(f"{nm} & {f.ref_test_auc:.3f} & {f.jac_mean:.3f} ({f.jac_p05:.3f}) & " + " & ".join(cells) + r" \\")
+rows += [r"\bottomrule", r"\end{tabular}"]
+w("gbdt_all", rows)
+
+SB = pd.read_csv(f"{R}/sbg_fl_vs_reference.csv"); SF = pd.read_csv(f"{R}/sbg_noise_floor.csv").set_index("model")
+rows = [r"\begin{tabular}{llcccccc}", r"\toprule", r"Model & Regime & \makecell{Noise floor:\\mean (5th pct)} & \makecell{Same model,\\other background} & \makecell{Pooled\\background} & \makecell{Local\\backgrounds} & \makecell{Shared federated\\background} \\", r"\midrule"]
+for m, mn in [("LR", "Logistic regression"), ("MLP", "Neural network")]:
+    for k, reg in enumerate(["medium", "high"]):
+        f = SF.loc[m]; cells = []
+        for st in ["fed_pooledbg", "fed_localbg", "fed_sharedbg"]:
+            g = SB[(SB.model == m) & (SB.regime == reg) & (SB.setting == st)].overlap
+            cells.append(f"{g.mean():.3f}" + (f" [{(g < f.floor_p05).sum()}/5]" if (g < f.floor_p05).sum() else ""))
+        rows.append(f"{mn if k == 0 else ''} & {reg} & {f.floor_mean:.3f} ({f.floor_p05:.3f}) & {f.bg_noise_only:.3f} & " + " & ".join(cells) + r" \\")
+    if m == "LR": rows.append(r"\midrule")
+rows += [r"\bottomrule", r"\end{tabular}"]
+w("sbg", rows)
+
+DP = pd.read_csv(f"{R}/dp_fedavg.csv")
+rows = [r"\begin{tabular}{lcccccc}", r"\toprule", r"Setting & \makecell{Noise\\multiplier $z$} & \makecell{Test\\ROC-AUC} & \makecell{Top-5\\overlap} & sd & \makecell{Partitions\\below floor} \\", r"\midrule"]
+fp = DP.floor_p05.iloc[0]; fm = DP.floor_mean.iloc[0]
+for lab, nm in [("non-private", "FedAvg, non-private"), ("clip only", "Clipping only ($C=2$, no noise)")] + [(f"eps={e}", rf"$\varepsilon={e}$") for e in [32, 16, 8, 4, 2, 1]]:
+    g = DP[(DP.regime == "high") & (DP.setting == lab)]; z = g.z.iloc[0]
+    rows.append(f"{nm} & {'' if z == 0 else f'{z:.1f}'} & {g.test_auc.mean():.3f} & {g.overlap.mean():.3f} & {g.overlap.std():.3f} & {(g.overlap < fp).sum()}/5 \\")
+rows.append(f"Retraining noise floor: mean (5th pct) & & & {fm:.3f} ({fp:.3f}) & & \\")
+rows += [r"\bottomrule", r"\end{tabular}"]
+w("dp", rows)
+
 print("tables written:", sorted(os.listdir(OUT)))

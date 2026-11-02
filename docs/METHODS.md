@@ -34,6 +34,9 @@ Fifty bootstrap resamples of the 960 training rows are drawn, the model is retra
 
 * `safe_metrics.py` (`e8_safe*.csv`): rank-graduation accuracy (RGA, equal to ROC-AUC), robustness (RGR, Gaussian input noise 0 to 0.5 sd), explainability (RGE, occlusion of the least important variables) and a compliance score, following Giudici and Kolesnikov (2026, Machine Learning with Applications 23, 100821). It is an approximation: RGA is a point value, removal is occlusion rather than retraining, and the partial-accuracy curve is not reproduced, so scores are **not comparable** with published ones.
 * `external_datasets.py` (`ext_*.csv`): the same audit (pooled reference, five aggregators, 50-bootstrap noise floor, shared baseline) on German credit, Taiwanese card default and Taiwanese bankruptcy data, with three stylised clients each. The declined set is the 30% of training applicants with the highest reference score. See `EXTERNAL_DATA.md`.
+* `federated_gbdt.py` (`gbdt_*.csv`): federated histogram gradient boosting (clients send per-bin gradient and Hessian sums, the server picks splits; 16 bins, depth 3, 50 trees), compared with per-client bagging, cyclic training and isolated models; explained with exact path-dependent TreeSHAP; four datasets.
+* `shared_background_shap.py` (`sbg_*.csv`): KernelSHAP on FedAvg models with a pooled random background, each client's local background, and a shared federated k-means background built from client sums and counts.
+* `dp_fedavg.py` (`dp_fedavg.csv`): FedAvg logistic regression with per-example clipping and Gaussian noise (DP-SGD per client), Renyi accountant (delta 1e-5, no subsampling amplification), epsilon from 1 to 32.
 
 ## Limitations
 

@@ -53,6 +53,9 @@ Every column is described, with value counts and ranges, in [`data/DATA_DICTIONA
 │   ├── safe_metrics.py                    rank-graduation accuracy, robustness, explainability and compliance score
 │   ├── fetch_external_data.py             downloads three public credit datasets (UCI) into data/external/
 │   ├── external_datasets.py               the audit on German credit, Taiwan card default and Taiwan bankruptcy
+│   ├── federated_gbdt.py                  federated histogram boosted trees (SecureBoost style), exact TreeSHAP drift
+│   ├── shared_background_shap.py          KernelSHAP with pooled, local and shared federated backgrounds
+│   ├── dp_fedavg.py                       differentially private FedAvg (DP-SGD, RDP accountant), epsilon sweep
 │   ├── make_figures.py, make_tables.py    figures and LaTeX tables for the manuscript
 │   ├── cv_auc.py, cv_extra.py             5-fold cross-validated ROC-AUC
 │   └── results_*/                         every output file (CSV, JSON, PNG)

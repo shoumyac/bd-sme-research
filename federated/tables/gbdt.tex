@@ -1,0 +1,14 @@
+\begin{tabular}{lccccl}
+\toprule
+Setting & \makecell{Test\\ROC-AUC} & \makecell{Top-5\\overlap} & \makecell{Same top\\reason} & Cosine & \makecell{Below floor\\on} \\
+\midrule
+Pooled boosted trees (reference) & 0.903 & 1 & 1 & 1 & \\
+Histogram aggregation (federated) & 0.903 & 0.990 & 0.979 & 0.999 & none \\
+Per-client ensembles, averaged & 0.901 & 0.805 & 0.646 & 0.959 & none \\
+Cyclic (round robin) & 0.841 & 0.634 & 0.403 & 0.880 & overlap, top reason, cosine \\
+Histogram aggregation, noise $\sigma=0.005$ & 0.858 & 0.723 & 0.587 & 0.920 & none \\
+Histogram aggregation, noise $\sigma=0.02$ & 0.630 & 0.290 & 0.158 & 0.395 & overlap, top reason, cosine \\
+Isolated local & 0.797 & 0.687 & 0.556 & 0.900 & cosine \\
+Retraining noise floor: mean (5th pct) & & 0.715 (0.652) & 0.565 (0.459) & 0.939 (0.913) & \\
+\bottomrule
+\end{tabular}

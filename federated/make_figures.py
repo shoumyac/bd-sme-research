@@ -3,7 +3,7 @@
 Writes figures/fig1_design.pdf, fig2_main.pdf, fig3_stress.pdf, fig4_sources.pdf, fig5_external.pdf (and .png copies)."""
 import os
 import numpy as np, pandas as pd
-import matplotlib
+import matplotlib, matplotlib.ticker
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
@@ -167,5 +167,52 @@ def fig5():
     fig.tight_layout(h_pad=1.0); save(fig, "fig5_external")
 
 
+def fig6():
+    DP = pd.read_csv(f"{R}/dp_fedavg.csv"); SB = pd.read_csv(f"{R}/sbg_fl_vs_reference.csv"); SF = pd.read_csv(f"{R}/sbg_noise_floor.csv").set_index("model")
+    GB = pd.read_csv(f"{R}/gbdt_fl_vs_reference.csv"); GF = pd.read_csv(f"{R}/gbdt_noise_floor.csv").set_index("dataset")
+    fig, axs = plt.subplots(2, 2, figsize=(7.2, 5.6))
+    # (a) DP: overlap vs epsilon (high regime)
+    ax = axs[0, 0]; g = DP[(DP.regime == "high") & DP.setting.str.startswith("eps=")]
+    eps = sorted(g.epsilon.unique()); m = [g[g.epsilon == e].overlap.mean() for e in eps]; sd = [g[g.epsilon == e].overlap.std() for e in eps]
+    ax.axhspan(DP.floor_p05.iloc[0], DP.floor_mean.iloc[0], color=GREY, alpha=0.8, lw=0, zorder=1)
+    ax.axhline(DP.floor_p05.iloc[0], color=MUTE, lw=0.8, ls="--")
+    ax.errorbar(eps, m, yerr=sd, color=BLUE, marker="o", ms=4, lw=1.2, capsize=2, zorder=3)
+    ax.axhline(DP[(DP.regime == "high") & (DP.setting == "non-private")].overlap.mean(), color=ORANGE, lw=1, ls=":")
+    ax.text(1.05, 0.915, "non-private FedAvg", color=ORANGE, fontsize=6.8, va="bottom")
+    ax.set_xscale("log", base=2); ax.set_xticks(eps); ax.set_xticklabels([str(int(e)) for e in eps]); ax.xaxis.set_minor_locator(matplotlib.ticker.NullLocator())
+    ax.set_xlabel(r"privacy budget $\varepsilon$ ($\delta=10^{-5}$)"); ax.set_ylabel("Top-5 overlap with pooled model"); ax.set_ylim(0.2, 1.0)
+    ax.set_title("(a) Differentially private FedAvg", fontsize=8, loc="left")
+    # (b) DP: accuracy vs epsilon
+    ax = axs[0, 1]; a = [g[g.epsilon == e].test_auc.mean() for e in eps]
+    ax.plot(eps, a, color=BLUE, marker="o", ms=4, lw=1.2)
+    ax.axhline(DP[(DP.regime == "high") & (DP.setting == "non-private")].test_auc.mean(), color=ORANGE, lw=1, ls=":")
+    ax.text(1.05, 0.885, "non-private FedAvg", color=ORANGE, fontsize=6.8, va="bottom")
+    ax.set_xscale("log", base=2); ax.set_xticks(eps); ax.set_xticklabels([str(int(e)) for e in eps]); ax.xaxis.set_minor_locator(matplotlib.ticker.NullLocator()); ax.set_ylim(0.7, 0.9)
+    ax.set_xlabel(r"privacy budget $\varepsilon$ ($\delta=10^{-5}$)"); ax.set_ylabel("Held-out ROC-AUC"); ax.set_title("(b) Accuracy of the same models", fontsize=8, loc="left")
+    # (c) shared background (high regime)
+    ax = axs[1, 0]; w = 0.26
+    names = [("fed_pooledbg", "Pooled", "#a9c9f0"), ("fed_localbg", "Local", ORANGE), ("fed_sharedbg", "Shared", BLUE)]
+    for i, mname in enumerate(["LR", "MLP"]):
+        f = SF.loc[mname]
+        ax.hlines([f.floor_p05], i - 0.45, i + 0.45, color=MUTE, ls="--", lw=0.8, zorder=2)
+        ax.fill_between([i - 0.45, i + 0.45], f.floor_p05, f.floor_mean, color=GREY, alpha=0.8, lw=0, zorder=1)
+        for j, (st, lab, col) in enumerate(names):
+            v = SB[(SB.model == mname) & (SB.regime == "high") & (SB.setting == st)].overlap
+            ax.bar(i + (j - 1) * w, v.mean(), w * 0.92, color=col, yerr=v.std(), capsize=2, error_kw=dict(lw=0.7), zorder=3, label=lab if i == 0 else None)
+    ax.set_xticks([0, 1]); ax.set_xticklabels(["Logistic regression", "Neural network"]); ax.set_ylim(0.4, 1.0)
+    ax.set_ylabel("Top-5 overlap with pooled model"); ax.legend(title="KernelSHAP background", fontsize=6.6, title_fontsize=6.8, frameon=False, loc="upper right", ncol=3, columnspacing=0.8, handlelength=1)
+    ax.set_title("(c) Explaining FedAvg with different backgrounds", fontsize=8, loc="left")
+    # (d) boosted trees
+    ax = axs[1, 1]; labs = [("hist", "Histogram"), ("bagging", "Bagging"), ("cyclic", "Cyclic"), ("isolated", "Isolated")]
+    f = GF.loc["bangladesh"]; ax.axhspan(f.jac_p05, f.jac_mean, color=GREY, alpha=0.8, lw=0, zorder=1); ax.axhline(f.jac_p05, color=MUTE, lw=0.8, ls="--")
+    cols = [BLUE, "#5b9be0", ORANGE, "#8f8e89"]
+    for k, (mth, lab) in enumerate(labs):
+        v = GB[(GB.dataset == "bangladesh") & (GB.regime == "high") & (GB.method == mth)].jac
+        ax.bar(k, v.mean(), 0.65, color=cols[k], zorder=3)
+    ax.set_xticks(range(4)); ax.set_xticklabels([l for _, l in labs]); ax.set_ylim(0.2, 1.05); ax.set_ylabel("Top-5 overlap with pooled model")
+    ax.set_title("(d) Federated boosted trees (TreeSHAP)", fontsize=8, loc="left")
+    fig.tight_layout(h_pad=1.4, w_pad=1.2); save(fig, "fig6_extensions")
+
+
 if __name__ == "__main__":
-    fig1(); fig2(); fig3(); fig4(); fig5(); print("figures written to", OUT)
+    fig1(); fig2(); fig3(); fig4(); fig5(); fig6(); print("figures written to", OUT)
