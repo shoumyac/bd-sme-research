@@ -36,6 +36,11 @@ s1 = s1.merge(f[f.floor == "boot"][["model", "baseline", "jac_mean", "jac_p05", 
                                "top1_mean": "floor_top1", "top1_p05": "floor_top1_p05"}),
               on=["model", "baseline"])
 s1["within_floor_jac"] = s1.jac >= s1.floor_jac_p05
+# share of partition seeds whose own agreement falls below the floor's 5th percentile
+_m = e1.merge(f[f.floor == "boot"][["model", "baseline", "jac_p05"]], on=["model", "baseline"])
+_m["below"] = _m.jac < _m.jac_p05
+s1 = s1.merge(_m.groupby(["model", "regime", "method", "baseline"]).below.mean().rename("share_seeds_below_floor").reset_index(),
+              on=["model", "regime", "method", "baseline"])
 s1.to_csv(f"{R}/summary_e1.csv", index=False)
 f.to_csv(f"{R}/summary_noise_floor.csv", index=False)
 
@@ -51,6 +56,8 @@ s3 = e3.groupby(["model", "factor", "level"]).agg(K=("K", "mean"), test_auc=("te
                                                   floor_jac_p05=("floor_jac_p05", "mean"),
                                                   n_declined=("n_declined", "mean")).reset_index()
 s3["within_floor_jac"] = s3.jac >= s3.floor_jac_p05
+_b = e3.assign(below=e3.jac < e3.floor_jac_p05).groupby(["model", "factor", "level"]).below.mean().rename("share_seeds_below_floor").reset_index()
+s3 = s3.merge(_b, on=["model", "factor", "level"])
 s3.to_csv(f"{R}/summary_e3.csv", index=False)
 
 if __name__ == "__main__":

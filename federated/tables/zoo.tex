@@ -1,0 +1,16 @@
+\begin{tabular}{lccc}
+\toprule
+Classifier & ROC-AUC (mean $\pm$ sd) & PR-AUC & Brier score \\
+\midrule
+AdaBoost & 0.915 $\pm$ 0.022 & 0.795 & 0.195 \\
+Gradient Boosting & 0.909 $\pm$ 0.022 & 0.785 & 0.104 \\
+Logistic Regression & 0.901 $\pm$ 0.022 & 0.778 & 0.127 \\
+MLP (1$\times$32) & 0.901 $\pm$ 0.030 & 0.774 & 0.115 \\
+Linear SVM (SGD) & 0.900 $\pm$ 0.020 & 0.772 & 0.126 \\
+HistGradientBoosting & 0.890 $\pm$ 0.029 & 0.737 & 0.121 \\
+Random Forest & 0.873 $\pm$ 0.032 & 0.689 & 0.135 \\
+Extra Trees & 0.838 $\pm$ 0.022 & 0.644 & 0.135 \\
+Gaussian NB & 0.822 $\pm$ 0.035 & 0.670 & 0.161 \\
+$k$-NN ($k$=15) & 0.800 $\pm$ 0.048 & 0.575 & 0.151 \\
+\bottomrule
+\end{tabular}

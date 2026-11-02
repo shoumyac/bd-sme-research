@@ -38,13 +38,17 @@ Every column is described, with value counts and ranges, in [`data/DATA_DICTIONA
 │   └── DATA_DICTIONARY.md
 ├── centralised_benchmark/             first analysis of the data (notebook, figures, own requirements)
 ├── federated/                         federated experiments
-│   ├── run_all.sh                     reproduces everything in about 10 minutes
+│   ├── run_all.sh                     reproduces everything in under 10 minutes
 │   ├── federated_xai_experiment.py        horizontal FL, Dirichlet stress test, fairness
 │   ├── federated_xai_experiment_v2.py     models, partitions, aggregators; model comparison, client scaling, DP noise
 │   ├── federated_xai_experiment_v3.py     vertical and personalised federation
 │   ├── mitigation.py                      shared-baseline explanations and the dispersion proposition
 │   ├── explanation_drift.py               agreement with the pooled-data reference and the retraining noise floor
+│   ├── proposition_check.py               numerical check of the dispersion proposition
 │   ├── summarise_drift.py                 summary tables
+│   ├── cost_concentration.py              cost, concentration, explainer agreement, joint view
+│   ├── fairness_check.py                  held-out group gaps, pooled model against FedAvg
+│   ├── make_figures.py, make_tables.py    figures and LaTeX tables for the manuscript
 │   ├── cv_auc.py, cv_extra.py             5-fold cross-validated ROC-AUC
 │   └── results_*/                         every output file (CSV, JSON, PNG)
 └── docs/METHODS.md                    definitions and design of the explanation-drift analysis
@@ -60,7 +64,7 @@ pip install -r requirements.txt
 bash federated/run_all.sh
 ```
 
-All randomness is seeded. The results stored in this repository were produced with numpy 2.5.3, pandas 3.0.5, scipy 1.18.1, scikit-learn 1.9.1 and Python 3.13. The federated and explanation-drift results reproduce exactly. The tree-based classifiers in the ten-model comparison (`results_federated_v2/model_zoo.csv`) can differ by up to about 0.01 ROC-AUC across scikit-learn versions.
+All randomness is seeded. The results stored in this repository were produced with numpy 2.5.3, pandas 3.0.5, scipy 1.18.1, scikit-learn 1.9.1 and Python 3.13. The federated and explanation-drift results reproduce exactly, apart from wall-clock timings. The tree-based classifiers in the ten-model comparison (`results_federated_v2/model_zoo.csv`) can differ by up to about 0.01 ROC-AUC across scikit-learn versions.
 
 ## What the federated analysis asks
 

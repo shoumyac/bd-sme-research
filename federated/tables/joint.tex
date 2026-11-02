@@ -1,0 +1,19 @@
+\begin{tabular}{llccccc}
+\toprule
+Model & Setting & \makecell{CV\\ROC-AUC} & \makecell{Top-5 overlap\\with reference} & \makecell{Perturbation\\cosine} & \makecell{Floats\\exchanged} & \makecell{Pareto-\\efficient} \\
+\midrule
+Logistic regression & Pooled model & 0.900 & 1.000 & 0.989 & 0 & n/a \\
+ & FedAvg & 0.895 & 0.900 & 0.989 & 5,400 & yes \\
+ & FedProx & 0.895 & 0.895 & 0.989 & 5,400 & no \\
+ & SCAFFOLD & 0.888 & 0.855 & 0.989 & 10,800 & no \\
+ & Coordinate-wise median & 0.884 & 0.738 & 0.989 & 5,400 & no \\
+ & Isolated local & 0.855 & 0.782 & 0.989 & 0 & yes \\
+\midrule
+Neural network & Pooled model & 0.901 & 1.000 & 0.984 & 0 & n/a \\
+ & FedAvg & 0.896 & 0.772 & 0.986 & 176,760 & yes \\
+ & FedProx & 0.897 & 0.765 & 0.987 & 176,760 & yes \\
+ & SCAFFOLD & 0.899 & 0.765 & 0.985 & 353,520 & yes \\
+ & Coordinate-wise median & 0.884 & 0.707 & 0.986 & 176,760 & no \\
+ & Isolated local & 0.842 & 0.689 & 0.986 & 0 & yes \\
+\bottomrule
+\end{tabular}

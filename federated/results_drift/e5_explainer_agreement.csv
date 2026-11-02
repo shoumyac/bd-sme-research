@@ -1,0 +1,7 @@
+model,explainer,top5_jaccard_vs_native,top1_match_vs_native,global_rank_spearman_vs_native,instances
+LR,linear SHAP (exact),1.0,1.0,1.0,100
+LR,"KernelSHAP (2,136 samples, 20 background rows)",0.7845238095238096,0.88,0.961444981140613,100
+LR,"LIME (5,000 samples)",0.6858333333333335,0.73,0.9775898520084565,100
+MLP,Integrated Gradients (12 steps),1.0,1.0,1.0,100
+MLP,"KernelSHAP (2,136 samples, 20 background rows)",0.688809523809524,0.72,0.9094048421728212,100
+MLP,"LIME (5,000 samples)",0.5720238095238096,0.56,0.9305144467935165,100

@@ -4,4 +4,6 @@ pandas>=1.5          # tested 3.0.5
 scipy>=1.10          # tested 1.18.1
 scikit-learn>=1.2    # tested 1.9.1
 matplotlib>=3.7      # tested 3.10.9
+shap>=0.44          # tested 0.54.1 (only cost_concentration.py)
+lime>=0.2.0         # tested 0.2.0.1 (only cost_concentration.py)
 # The centralised notebook has its own requirements: centralised_benchmark/requirements.txt

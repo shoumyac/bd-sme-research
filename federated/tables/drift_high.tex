@@ -1,0 +1,23 @@
+\begin{tabular}{lcccccl}
+\toprule
+Setting & \makecell{CV\\ROC-AUC} & \makecell{Top-5\\overlap} & \makecell{Same top\\reason} & Cosine & \makecell{Identical\\top-5 sets} & \makecell{Below floor\\on} \\
+\midrule
+\multicolumn{7}{l}{\emph{Logistic regression}} \\
+Pooled model (reference) & 0.900 & 1 & 1 & 1 & 1 & \\
+FedAvg & 0.895 & 0.900 & 0.972 & 0.990 & 0.710 & none \\
+FedProx & 0.895 & 0.895 & 0.967 & 0.990 & 0.695 & none \\
+SCAFFOLD & 0.888 & 0.855 & 0.915 & 0.977 & 0.590 & none \\
+Coordinate-wise median & 0.884 & 0.738 & 0.843 & 0.950 & 0.294 & overlap, cosine \\
+Isolated local & 0.855 & 0.782 & 0.839 & 0.957 & 0.438 & cosine \\
+Retraining noise floor: mean (5th pct) & & 0.829 (0.763) & 0.880 (0.818) & 0.980 (0.970) & 0.514 & \\
+\midrule
+\multicolumn{7}{l}{\emph{Neural network}} \\
+Pooled model (reference) & 0.901 & 1 & 1 & 1 & 1 & \\
+FedAvg & 0.896 & 0.772 & 0.810 & 0.967 & 0.388 & none \\
+FedProx & 0.897 & 0.765 & 0.827 & 0.963 & 0.367 & none \\
+SCAFFOLD & 0.899 & 0.765 & 0.806 & 0.952 & 0.388 & none \\
+Coordinate-wise median & 0.884 & 0.707 & 0.711 & 0.914 & 0.286 & cosine \\
+Isolated local & 0.842 & 0.689 & 0.680 & 0.906 & 0.259 & top reason, cosine \\
+Retraining noise floor: mean (5th pct) & & 0.703 (0.667) & 0.755 (0.690) & 0.936 (0.920) & 0.260 & \\
+\bottomrule
+\end{tabular}
