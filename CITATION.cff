@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: "If you use this dataset or code, please cite the archived version."
 type: dataset
 title: "AI-Driven Credit Risk Assessment for Bangladesh SMEs: Dataset and Analysis Code"
-version: "3.1.0"
+version: "3.1.1"
 date-released: 2026-11-02
 doi: 10.5281/zenodo.18525277
 license: CC-BY-4.0
