@@ -102,7 +102,6 @@ Please cite the archived dataset and code (see `CITATION.cff`, or use GitHub's "
 
 * Shoumya Chowdhury (corresponding), University of Melbourne, shoumyac@student.unimelb.edu.au
 * Anmita Das, University of Melbourne
-* Sushanta Paul, Bangladesh Customs, National Board of Revenue
 
 ## Licence
 

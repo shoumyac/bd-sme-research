@@ -32,10 +32,6 @@ authors:
     given-names: Anmita
     orcid: "https://orcid.org/0009-0000-1401-0494"
     affiliation: "University of Melbourne"
-  - family-names: Paul
-    given-names: Sushanta
-    orcid: "https://orcid.org/0009-0007-8071-6971"
-    affiliation: "Bangladesh Customs, National Board of Revenue"
 references:
   - type: generic
     title: "Benchmarking explainability methods for SME credit risk models in emerging markets"
