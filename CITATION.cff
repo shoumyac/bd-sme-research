@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: "If you use this dataset or code, please cite the archived version."
 type: dataset
 title: "AI-Driven Credit Risk Assessment for Bangladesh SMEs: Dataset and Analysis Code"
-version: "3.0.0"
+version: "3.1.0"
 date-released: 2026-11-02
 doi: 10.5281/zenodo.18525277
 license: CC-BY-4.0
@@ -12,6 +12,9 @@ abstract: >
   1,200 SME loan records from Bangladesh (supplied by BASIC Bank Limited and Bangladesh Bank, loans originated
   July 2023 to June 2025, collected July 2024 to June 2026) with a centralised benchmark and code for studying
   whether federated training changes the explanations given to declined applicants. Data licence CC BY 4.0, code licence MIT.
+  Version note: the data file is identical in all versions. The earlier releases (v1, 2026-02-08; v2.0, 2026-06-05), on which the
+  IntelliSys 2026 chapter (doi:10.1007/978-3-032-32729-1_33) was prepared, described the data period as 2022 to 2023, which was wrong;
+  v3.0 and later state the correct dates given above.
 keywords:
   - credit risk
   - SME finance
@@ -33,3 +36,14 @@ authors:
     given-names: Sushanta
     orcid: "https://orcid.org/0009-0007-8071-6971"
     affiliation: "Bangladesh Customs, National Board of Revenue"
+references:
+  - type: generic
+    title: "Benchmarking explainability methods for SME credit risk models in emerging markets"
+    authors:
+      - family-names: Chowdhury
+        given-names: Shoumya
+      - family-names: Das
+        given-names: Anmita
+    year: 2026
+    doi: "10.1007/978-3-032-32729-1_33"
+    notes: "Springer, Lecture Notes in Networks and Systems. Prepared with the v1 and v2.0 releases of this dataset."

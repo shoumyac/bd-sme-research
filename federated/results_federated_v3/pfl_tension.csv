@@ -1,3 +1,3 @@
 model,local_fidelity_global,local_fidelity_personalized,crossclient_viol_global,crossclient_viol_personalized,auc_global,auc_personalized
 LR,0.922,0.95,0.0,0.421,0.876,0.866
-MLP,0.856,0.884,0.0,0.635,0.851,0.837
+MLP,0.854,0.884,0.0,0.633,0.852,0.837

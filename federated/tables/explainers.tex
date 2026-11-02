@@ -2,13 +2,13 @@
 \toprule
 Model & Explainer & \makecell{Time per 100\\applicants} & \makecell{Top-5\\share} & Gini & \makecell{Effective\\features} & \makecell{Top-5 overlap\\with native} & \makecell{Same top\\reason} \\
 \midrule
-Logistic regression & linear SHAP (exact) & 14 $\mu$s & 0.544 & 0.682 & 12.3 & 1.000 & 1.00 \\
- & KernelSHAP & 5.7 s & 0.739 & 0.849 & 7.0 & 0.785 & 0.88 \\
- & LIME & 2.3 s & 0.626 & 0.744 & 9.6 & 0.686 & 0.73 \\
- & TreeSHAP (gradient boosting, for reference) & 5.3 ms & & & & & \\
+Logistic regression & linear SHAP (exact) & 15 $\mu$s & 0.544 & 0.682 & 12.3 & 1.000 & 1.00 \\
+ & KernelSHAP & 4.5 s & 0.739 & 0.849 & 7.0 & 0.785 & 0.88 \\
+ & LIME & 2.4 s & 0.626 & 0.744 & 9.6 & 0.683 & 0.73 \\
+ & TreeSHAP (gradient boosting, for reference) & 5.0 ms & & & & & \\
 \midrule
-Neural network & Integrated Gradients & 845 $\mu$s & 0.510 & 0.633 & 14.1 & 1.000 & 1.00 \\
- & KernelSHAP & 6.9 s & 0.757 & 0.855 & 6.8 & 0.689 & 0.72 \\
- & LIME & 2.5 s & 0.623 & 0.728 & 9.9 & 0.572 & 0.56 \\
+Neural network & Integrated Gradients & 899 $\mu$s & 0.519 & 0.640 & 13.8 & 1.000 & 1.00 \\
+ & KernelSHAP & 6.3 s & 0.757 & 0.854 & 6.8 & 0.695 & 0.66 \\
+ & LIME & 2.5 s & 0.632 & 0.734 & 9.7 & 0.600 & 0.56 \\
 \bottomrule
 \end{tabular}

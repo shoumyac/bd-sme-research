@@ -50,12 +50,19 @@ CAT = ["sector","legal_status","division","location_type","existing_loans",
        "late_payment_history","loan_purpose","collateral_level","owner_education"]
 y = df[TARGET].astype(int).values
 
+# Preprocessing is fitted on training rows only. The one-hot vocabulary (category names) comes from the schema.
+CATS = [sorted(df[c].astype(str).unique()) for c in CAT]
+idx = np.arange(len(y))
+tr_idx, te_idx = train_test_split(idx, test_size=0.20, stratify=y, random_state=42)
 ct = ColumnTransformer([
     ("num", StandardScaler(), NUM),
-    ("cat", OneHotEncoder(handle_unknown="ignore"), CAT),
+    ("cat", OneHotEncoder(categories=CATS, handle_unknown="ignore"), CAT),
 ])
-X = ct.fit_transform(df).astype(float)
+dfs = df.astype({c: str for c in CAT})
+ct.fit(dfs.iloc[tr_idx])
+X = ct.transform(dfs)
 if hasattr(X, "toarray"): X = X.toarray()
+X = X.astype(float)
 feat_names = NUM + list(ct.named_transformers_["cat"].get_feature_names_out(CAT))
 d = X.shape[1]
 print(f"Feature space: {X.shape}, {d} dimensions")
@@ -63,8 +70,6 @@ print(f"Feature space: {X.shape}, {d} dimensions")
 # keep raw subgroup columns aligned to rows for fairness audit
 meta = df[["sector","division","location_type","owner_education"]].reset_index(drop=True)
 
-idx = np.arange(len(y))
-tr_idx, te_idx = train_test_split(idx, test_size=0.20, stratify=y, random_state=42)
 Xtr, ytr = X[tr_idx], y[tr_idx]
 Xte, yte = X[te_idx], y[te_idx]
 meta_tr = meta.iloc[tr_idx].reset_index(drop=True)

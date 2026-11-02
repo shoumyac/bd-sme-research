@@ -1,6 +1,6 @@
 {
   "feature_dims": 44,
-  "centralized_test_auc": 0.8608,
+  "centralized_test_auc": 0.861,
   "input_perturb_stability": [
     0.9954,
     0.0005
@@ -9,20 +9,20 @@
     {
       "regime": "low",
       "setting": "Centralized",
-      "test_auc": 0.8608,
+      "test_auc": 0.861,
       "S_cc": 0.9453,
-      "S_rank": 0.9576,
+      "S_rank": 0.9586,
       "J5": 1.0,
-      "violation": 0.6073
+      "violation": 0.6062
     },
     {
       "regime": "low",
       "setting": "FedProx(mu=0.1)",
-      "test_auc": 0.8607,
+      "test_auc": 0.8606,
       "S_cc": 0.9477,
       "S_rank": 0.9567,
       "J5": 0.7778,
-      "violation": 0.5604
+      "violation": 0.5615
     },
     {
       "regime": "low",
@@ -36,85 +36,85 @@
     {
       "regime": "medium",
       "setting": "Centralized",
-      "test_auc": 0.8608,
-      "S_cc": 0.9365,
-      "S_rank": 0.917,
+      "test_auc": 0.861,
+      "S_cc": 0.9366,
+      "S_rank": 0.918,
       "J5": 1.0,
-      "violation": 0.6052
+      "violation": 0.6042
     },
     {
       "regime": "medium",
       "setting": "FedProx(mu=0.1)",
       "test_auc": 0.8711,
-      "S_cc": 0.9335,
-      "S_rank": 0.9235,
+      "S_cc": 0.9336,
+      "S_rank": 0.922,
       "J5": 0.7778,
-      "violation": 0.5615
+      "violation": 0.5594
     },
     {
       "regime": "medium",
       "setting": "FedAvg",
       "test_auc": 0.871,
-      "S_cc": 0.933,
-      "S_rank": 0.9321,
+      "S_cc": 0.9331,
+      "S_rank": 0.9316,
       "J5": 0.7778,
-      "violation": 0.5719
+      "violation": 0.5708
     },
     {
       "regime": "high",
       "setting": "Centralized",
-      "test_auc": 0.8608,
-      "S_cc": 0.9235,
-      "S_rank": 0.8842,
+      "test_auc": 0.861,
+      "S_cc": 0.9237,
+      "S_rank": 0.8816,
       "J5": 0.5873,
-      "violation": 0.4969
+      "violation": 0.4979
     },
     {
       "regime": "high",
       "setting": "FedProx(mu=0.1)",
-      "test_auc": 0.8754,
-      "S_cc": 0.9228,
+      "test_auc": 0.8753,
+      "S_cc": 0.923,
       "S_rank": 0.8869,
       "J5": 0.5873,
-      "violation": 0.4521
+      "violation": 0.4531
     },
     {
       "regime": "high",
       "setting": "FedAvg",
-      "test_auc": 0.8755,
-      "S_cc": 0.9221,
+      "test_auc": 0.8754,
+      "S_cc": 0.9223,
       "S_rank": 0.8869,
       "J5": 0.5873,
-      "violation": 0.4573
+      "violation": 0.4583
     }
   ],
   "dirichlet": [
     {
       "alpha": 0.1,
       "n_clients": 3,
-      "test_auc": 0.8133,
-      "S_cc": 0.6169,
-      "S_rank": 0.9841,
+      "test_auc": 0.8129,
+      "S_cc": 0.6174,
+      "S_rank": 0.9851,
       "J5": 0.7778,
       "violation": 0.9219
     },
     {
       "alpha": 0.5,
       "n_clients": 3,
-      "test_auc": 0.8396,
-      "S_cc": 0.7267,
-      "S_rank": 0.9888,
+      "test_auc": 0.8394,
+      "S_cc": 0.7273,
+      "S_rank": 0.9887,
       "J5": 0.7778,
-      "violation": 0.7469
+      "violation": 0.7562
     },
     {
       "alpha": 5.0,
       "n_clients": 3,
-      "test_auc": 0.8535,
-      "S_cc": 0.9363,
-      "S_rank": 0.9887,
+      "test_auc": 0.8536,
+      "S_cc": 0.9364,
+      "S_rank": 0.9883,
       "J5": 1.0,
-      "violation": 0.6854
+      "violation": 0.6844
     }
   ]
 }

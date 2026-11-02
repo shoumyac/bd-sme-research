@@ -4,7 +4,7 @@ This note defines the analysis in `federated/explanation_drift.py`. All code is 
 
 ## Setting
 
-* **Data.** The 1,200 loans; a stratified 80/20 split with `random_state = 42` gives 960 training rows (the federated pool) and 240 test rows (held-out ROC-AUC only).
+* **Data.** The 1,200 loans; a stratified 80/20 split with `random_state = 42` gives 960 training rows (the federated pool) and 240 test rows (held-out ROC-AUC only). Standardisation and one-hot encoding are fitted on the training rows only (the category vocabulary comes from the schema), and refitted inside every cross-validation fold. Earlier versions of this repository (before v3.1.0) fitted them on all 1,200 rows; results were regenerated.
 * **Inputs.** 44 columns after one-hot encoding (see `data/DATA_DICTIONARY.md`).
 * **Models.** A logistic regression (explained with exact linear SHAP values, `phi_j = w_j (x_j - baseline_j)`) and a one-hidden-layer network with 32 ReLU units (explained with Integrated Gradients, 12 steps). Both are trained with class-balanced weights, so their scores are not calibrated probabilities.
 * **Clients.** Three archetypes built from location type, sector and division: rural and agricultural borrowers, urban borrowers in manufacturing and services, and borrowers concentrated in three divisions. Heterogeneity is `low`, `medium` or `high`; the `high` partition is deterministic apart from rows that match no archetype. A second family of partitions uses Dirichlet label skew (alpha 0.1, 0.5, 5.0). All records come from one bank and the central bank, so the archetypes are stylised and do not correspond to real institutions.
@@ -31,6 +31,9 @@ Fifty bootstrap resamples of the 960 training rows are drawn, the model is retra
 * `e3_stress.csv`: Dirichlet label skew, number of clients (3, 5, 10), Gaussian noise added to the aggregate (logistic regression only) and the decline threshold.
 * `federated_xai_experiment_v3.py`: vertical federation (44 features held by three parties) and personalised federation (global model fine-tuned on each client). These change the structure of the explanation problem and are reported separately.
 * `mitigation.py`: the shared-baseline explanation and a check of the dispersion proposition for linear models, `std_k(phi_j) = |w_j| std_k(mu_j)`.
+
+* `safe_metrics.py` (`e8_safe*.csv`): rank-graduation accuracy (RGA, equal to ROC-AUC), robustness (RGR, Gaussian input noise 0 to 0.5 sd), explainability (RGE, occlusion of the least important variables) and a compliance score, following Giudici and Kolesnikov (2026, Machine Learning with Applications 23, 100821). It is an approximation: RGA is a point value, removal is occlusion rather than retraining, and the partial-accuracy curve is not reproduced, so scores are **not comparable** with published ones.
+* `external_datasets.py` (`ext_*.csv`): the same audit (pooled reference, five aggregators, 50-bootstrap noise floor, shared baseline) on German credit, Taiwanese card default and Taiwanese bankruptcy data, with three stylised clients each. The declined set is the 30% of training applicants with the highest reference score. See `EXTERNAL_DATA.md`.
 
 ## Limitations
 

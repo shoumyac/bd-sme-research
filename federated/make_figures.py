@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Figures for the manuscript, drawn from results_drift/*.csv.  Run from this folder: python make_figures.py
-Writes figures/fig1_design.pdf, fig2_main.pdf, fig3_stress.pdf, fig4_sources.pdf (and .png copies)."""
+Writes figures/fig1_design.pdf, fig2_main.pdf, fig3_stress.pdf, fig4_sources.pdf, fig5_external.pdf (and .png copies)."""
 import os
 import numpy as np, pandas as pd
 import matplotlib
@@ -143,6 +143,29 @@ def fig4():
     ax.set_title("(b)", fontsize=9, loc="left", y=1.18)
     fig.tight_layout(); save(fig, "fig4_sources")
 
+# ------------------------------------------------------------------ Fig 5: three public credit datasets
+def fig5():
+    ER = pd.read_csv(f"{R}/ext_fl_vs_reference.csv"); EF = pd.read_csv(f"{R}/ext_noise_floor.csv")
+    DN = [("german", "German credit (1,000 loans)"), ("taiwan_default", "Taiwan card default (5,000 sampled)"), ("taiwan_bankruptcy", "Taiwan bankruptcy (6,819 firms)")]
+    fig, axs = plt.subplots(2, 3, figsize=(7.2, 4.6), sharey=True)
+    cols = {"fedavg": BLUE, "fedprox": "#5b9be0", "scaffold": "#a9c9f0", "median": ORANGE, "isolated": "#8f8e89"}
+    for r, (m, mt) in enumerate([("LR", "Logistic regression"), ("MLP", "Neural network")]):
+        for c, (dn, title) in enumerate(DN):
+            ax = axs[r, c]
+            g = ER[(ER.dataset == dn) & (ER.model == m) & (ER.regime == "high")]
+            f = EF[(EF.dataset == dn) & (EF.model == m) & (EF.regime == "high")]
+            lo, hi = f.jac_p05.mean(), f.jac_mean.mean()
+            ax.axhspan(lo, hi, color=GREY, alpha=0.8, zorder=1, lw=0)
+            ax.axhline(lo, color=MUTE, lw=0.8, ls="--", zorder=2)
+            for k, a in enumerate(cols):
+                v = g[g.method == a].jac.mean(); sd = g[g.method == a].jac.std()
+                ax.bar(k, v, 0.7, color=cols[a], yerr=sd if sd == sd else None, capsize=2, error_kw=dict(lw=0.7), zorder=3)
+            ax.set_xticks(range(5)); ax.set_xticklabels([NAMES[a] if a != "scaffold" else "SCAFF." for a in cols], rotation=45, ha="right", fontsize=6.8)
+            ax.set_ylim(0.2, 1.0)
+            if r == 0: ax.set_title(title, fontsize=7.4)
+            if c == 0: ax.set_ylabel(f"{mt}\nTop-5 overlap with pooled model", fontsize=7.4)
+    fig.tight_layout(h_pad=1.0); save(fig, "fig5_external")
+
 
 if __name__ == "__main__":
-    fig1(); fig2(); fig3(); fig4(); print("figures written to", OUT)
+    fig1(); fig2(); fig3(); fig4(); fig5(); print("figures written to", OUT)

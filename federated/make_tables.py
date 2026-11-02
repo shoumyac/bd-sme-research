@@ -57,7 +57,14 @@ w("drift_high", rows)
 v = pd.read_csv(f"{V3}/vfl_fragmentation.csv").set_index("model")
 p = pd.read_csv(f"{V3}/pfl_tension.csv").set_index("model")
 fl_all = pd.read_csv(f"{R}/summary_noise_floor.csv"); fl_all = fl_all[(fl_all.baseline == "shared") & (fl_all.floor == "boot")].set_index("model")
-cvx = {"LR": (0.8948, 0.8938), "MLP": (0.8961, 0.8931)}   # cv_extra_log.txt, pfl block
+def _pfl_cv():
+    blk = open(f"{V2}/cv_extra_log.txt").read().split("== pfl ==")[1].split("==")[0].strip().splitlines()
+    out = {}
+    for ln in blk:
+        t = ln.split()          # e.g. "LR global 0.8946 pers 0.8938"
+        out[t[0]] = (float(t[2]), float(t[4]))
+    return out
+cvx = _pfl_cv()   # parsed from cv_extra_log.txt, pfl block
 rows = ["\\begin{tabular}{lcccccc}", "\\toprule",
         " & \\multicolumn{3}{c}{Vertical federation} & \\multicolumn{3}{c}{Personalised federation} \\\\",
         "\\cmidrule(lr){2-4}\\cmidrule(lr){5-7}",
@@ -105,14 +112,14 @@ for m, title in [("LR", "Logistic regression"), ("MLP", "Neural network")]:
 rows += ["\\bottomrule", "\\end{tabular}"]
 w("explainers", rows)
 
-# ---------------------------------------------------------------- Table: joint view
-J = pd.read_csv(f"{R}/e6_joint.csv")
-rows = ["\\begin{tabular}{llccccc}", "\\toprule", "Model & Setting & \\makecell{CV\\\\ROC-AUC} & \\makecell{Top-5 overlap\\\\with reference} & \\makecell{Perturbation\\\\cosine} & \\makecell{Floats\\\\exchanged} & \\makecell{Pareto-\\\\efficient} \\\\", "\\midrule"]
+# ---------------------------------------------------------------- Table: joint view (SAFE-style scores plus drift)
+J = pd.read_csv(f"{R}/e6_joint.csv"); SF = pd.read_csv(f"{R}/e8_safe.csv")
+rows = ["\\begin{tabular}{llcccccc}", "\\toprule",
+        "Model & Setting & \\makecell{CV\\\\ROC-AUC} & \\makecell{Top-5 overlap\\\\with reference} & \\makecell{Explanation\\\\perturbation cosine} & AURGR & AURGE & \\makecell{Compliance\\\\score} \\\\", "\\midrule"]
 for m, title in [("LR", "Logistic regression"), ("MLP", "Neural network")]:
     for k in ["centralised"] + ORDER:
-        r = J[(J.model == m) & (J.source == k)].iloc[0]
-        pe = "n/a" if k == "centralised" else ("yes" if r.pareto_efficient else "no")
-        rows.append(f"{title if k=='centralised' else ''} & {NAMES[k].replace(' (reference)','')} & {r.cv_auc:.3f} & {r.drift_top5_overlap:.3f} & {r.perturbation_cosine:.3f} & {int(r.floats_communicated):,} & {pe} \\\\")
+        r = J[(J.model == m) & (J.source == k)].iloc[0]; q = SF[(SF.model == m) & (SF.source == k)].iloc[0]
+        rows.append(f"{title if k=='centralised' else ''} & {NAMES[k].replace(' (reference)','')} & {r.cv_auc:.3f} & {r.drift_top5_overlap:.3f} & {r.perturbation_cosine:.3f} & {q.aurgr:.3f} & {q.aurge:.3f} & {q.score_arith:.3f} \\\\")
     if m == "LR": rows.append("\\midrule")
 rows += ["\\bottomrule", "\\end{tabular}"]
 w("joint", rows)
@@ -132,6 +139,24 @@ for m, title in [("LR", "Logistic regression"), ("MLP", "Neural network")]:
     if m == "LR": rows.append("\\midrule")
 rows += ["\\bottomrule", "\\end{tabular}"]
 w("fairness", rows)
+
+# ---------------------------------------------------------------- Table: three public credit datasets
+ER = pd.read_csv(f"{R}/ext_fl_vs_reference.csv"); EF = pd.read_csv(f"{R}/ext_noise_floor.csv"); EI = pd.read_csv(f"{R}/ext_dataset_info.csv")
+DN = {"german": "German credit", "taiwan_default": "Taiwan card default", "taiwan_bankruptcy": "Taiwan bankruptcy"}
+rows = ["\\begin{tabular}{llccccccc}", "\\toprule",
+        "Dataset & Model & \\makecell{Pooled\\\\test AUC} & \\makecell{Noise floor:\\\\mean (5th pct)} & FedAvg & FedProx & SCAFFOLD & Median & Isolated \\\\", "\\midrule"]
+for di, dsn in enumerate(DN):
+    for m, title in [("LR", "LR"), ("MLP", "NN")]:
+        g = ER[(ER.dataset == dsn) & (ER.model == m) & (ER.regime == "high")]
+        fl = EF[(EF.dataset == dsn) & (EF.model == m) & (EF.regime == "high")]
+        fm, fp = fl.jac_mean.mean(), fl.jac_p05.mean(); info = EI[(EI.dataset == dsn) & (EI.model == m)].iloc[0]
+        cells = []
+        for k in ["fedavg", "fedprox", "scaffold", "median", "isolated"]:
+            v = g[g.method == k].jac.mean(); cells.append(f"{v:.3f}" + ("$^\\dagger$" if v < fp else ""))
+        rows.append(f"{DN[dsn] if m == 'LR' else ''} & {title} & {info.ref_test_auc:.3f} & {fm:.3f} ({fp:.3f}) & " + " & ".join(cells) + " \\\\")
+    if di < 2: rows.append("\\midrule")
+rows += ["\\bottomrule", "\\end{tabular}"]
+w("external", rows)
 
 # ---------------------------------------------------------------- Table: concentration of FL sources (for text reference)
 cs = pd.read_csv(f"{R}/e5_concentration.csv"); cs = cs[cs.source != "reference"]

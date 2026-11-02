@@ -28,12 +28,27 @@ NUM=["business_age_years","employees_count","monthly_revenue_bdt","monthly_profi
 CAT=["sector","legal_status","division","location_type","existing_loans",
      "late_payment_history","loan_purpose","collateral_level","owner_education"]
 y=df[TARGET].astype(int).values
-ct=ColumnTransformer([("num",StandardScaler(),NUM),("cat",OneHotEncoder(handle_unknown="ignore"),CAT)])
-X=ct.fit_transform(df); X=X.toarray() if hasattr(X,"toarray") else X; X=X.astype(float)
+# Preprocessing is fitted on TRAINING rows only (no test-row or validation-row statistics).
+# The one-hot vocabulary (category names, not counts) is taken from the file's schema so that the
+# feature space has a fixed width in every cross-validation fold.
+CATS=[sorted(df[c].astype(str).unique()) for c in CAT]
+def new_ct():
+    return ColumnTransformer([("num",StandardScaler(),NUM),
+        ("cat",OneHotEncoder(categories=CATS,handle_unknown="ignore"),CAT)])
+def prep_fit(rows):
+    ct=new_ct(); ct.fit(df.iloc[rows].astype({c:str for c in CAT})); return ct
+def prep_apply(ct,rows):
+    Z=ct.transform(df.iloc[rows].astype({c:str for c in CAT}))
+    return (Z.toarray() if hasattr(Z,"toarray") else Z).astype(float)
+def fold_data(tr_rows,te_rows):
+    """Fit the preprocessing on tr_rows only and return (Xtr, Xte)."""
+    ct=prep_fit(tr_rows); return prep_apply(ct,tr_rows),prep_apply(ct,te_rows)
+idx=np.arange(len(y)); tr,te=train_test_split(idx,test_size=0.2,stratify=y,random_state=42)
+ct=prep_fit(tr)
+Xtr,Xte=prep_apply(ct,tr),prep_apply(ct,te); ytr,yte=y[tr],y[te]
+X=prep_apply(ct,idx)   # all rows, train-fitted transform (only used for row-aligned bookkeeping)
 feat=NUM+list(ct.named_transformers_["cat"].get_feature_names_out(CAT)); d=X.shape[1]
 meta=df[["sector","division","location_type","owner_education"]].reset_index(drop=True)
-idx=np.arange(len(y)); tr,te=train_test_split(idx,test_size=0.2,stratify=y,random_state=42)
-Xtr,ytr,Xte,yte=X[tr],y[tr],X[te],y[te]
 meta_tr=meta.iloc[tr].reset_index(drop=True)
 
 def sig(z): return 1/(1+np.exp(-np.clip(z,-35,35)))
@@ -180,8 +195,9 @@ def stage_zoo():
     skf=StratifiedKFold(5,shuffle=True,random_state=42);rows=[]
     for name,fn in zoo.items():
         au=[];pr=[];br=[]
-        for a,b in skf.split(Xtr,ytr):
-            m=fn();m.fit(Xtr[a],ytr[a]);p=m.predict_proba(Xtr[b])[:,1]
+        for a,b in skf.split(tr,ytr):
+            XA,XB=fold_data(tr[a],tr[b])   # preprocessing fitted on the fold's training part only
+            m=fn();m.fit(XA,ytr[a]);p=m.predict_proba(XB)[:,1]
             au.append(roc_auc_score(ytr[b],p));pr.append(average_precision_score(ytr[b],p));br.append(brier_score_loss(ytr[b],p))
         rows.append(dict(Model=name,ROC_AUC=round(np.mean(au),4),ROC_AUC_std=round(np.std(au),4),
                          PR_AUC=round(np.mean(pr),4),Brier=round(np.mean(br),4)))

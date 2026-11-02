@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Reproduce every result in federated/. Takes under 10 minutes on one CPU core.
+# Reproduce every result in federated/. Takes about 15 minutes on one CPU core (the external-dataset audit is about 7 of them).
 # Run from anywhere; the scripts expect to be run from this folder (they read ../data/).
 set -euo pipefail
 cd "$(dirname "$0")"
@@ -16,6 +16,9 @@ python explanation_drift.py all                    # agreement with the pooled-d
 python proposition_check.py                        # numerical check of Proposition 1               -> results_drift/e2_proposition.csv
 python summarise_drift.py                          # summary tables                                  -> results_drift/summary_*.csv
 python cost_concentration.py                       # cost, concentration, explainer agreement, joint view -> results_drift/e4_*.csv, e5_*.csv, e6_joint.csv
+python safe_metrics.py                             # rank-graduation accuracy, robustness, explainability and compliance score -> results_drift/e8_safe.csv
 python fairness_check.py                           # held-out group gaps, pooled model vs FedAvg    -> results_drift/e7_fairness.csv
+python fetch_external_data.py                    # downloads three public credit datasets into ../data/external/ (needs internet)
+python external_datasets.py                        # audit on German credit, Taiwan card default, Taiwan bankruptcy -> results_drift/ext_*.csv
 python make_figures.py                             # figures for the manuscript                     -> figures/
 python make_tables.py                              # LaTeX tables for the manuscript                -> tables/

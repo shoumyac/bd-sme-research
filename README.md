@@ -11,6 +11,8 @@ A public dataset of 1,200 Bangladeshi SME loans and the code that studies it in 
 
 The DOI above is the concept DOI and always resolves to the latest archived version.
 
+> **Note on versions and an earlier publication.** The conference chapter *Benchmarking explainability methods for SME credit risk models in emerging markets* (Chowdhury and Das, Springer, Lecture Notes in Networks and Systems, online 2 September 2026, [doi:10.1007/978-3-032-32729-1_33](https://doi.org/10.1007/978-3-032-32729-1_33)) was prepared with the earlier releases of this dataset: v1 (8 February 2026, [doi:10.5281/zenodo.18525278](https://doi.org/10.5281/zenodo.18525278)) and v2.0 (5 June 2026, [doi:10.5281/zenodo.20560302](https://doi.org/10.5281/zenodo.20560302)). Those releases described the data period as "2022 to 2023". That description was wrong. The CSV file is byte-identical in every version, and only the description changed: since v3.0 it states the correct dates (loans originated July 2023 to June 2025, collected July 2024 to June 2026). Where the chapter's date statements differ from this repository, this repository (v3.0 or later) is correct. See [Version history](#version-history).
+
 ## The data
 
 | | |
@@ -38,7 +40,7 @@ Every column is described, with value counts and ranges, in [`data/DATA_DICTIONA
 │   └── DATA_DICTIONARY.md
 ├── centralised_benchmark/             first analysis of the data (notebook, figures, own requirements)
 ├── federated/                         federated experiments
-│   ├── run_all.sh                     reproduces everything in under 10 minutes
+│   ├── run_all.sh                     reproduces everything in about 15 minutes
 │   ├── federated_xai_experiment.py        horizontal FL, Dirichlet stress test, fairness
 │   ├── federated_xai_experiment_v2.py     models, partitions, aggregators; model comparison, client scaling, DP noise
 │   ├── federated_xai_experiment_v3.py     vertical and personalised federation
@@ -48,10 +50,14 @@ Every column is described, with value counts and ranges, in [`data/DATA_DICTIONA
 │   ├── summarise_drift.py                 summary tables
 │   ├── cost_concentration.py              cost, concentration, explainer agreement, joint view
 │   ├── fairness_check.py                  held-out group gaps, pooled model against FedAvg
+│   ├── safe_metrics.py                    rank-graduation accuracy, robustness, explainability and compliance score
+│   ├── fetch_external_data.py             downloads three public credit datasets (UCI) into data/external/
+│   ├── external_datasets.py               the audit on German credit, Taiwan card default and Taiwan bankruptcy
 │   ├── make_figures.py, make_tables.py    figures and LaTeX tables for the manuscript
 │   ├── cv_auc.py, cv_extra.py             5-fold cross-validated ROC-AUC
 │   └── results_*/                         every output file (CSV, JSON, PNG)
-└── docs/METHODS.md                    definitions and design of the explanation-drift analysis
+├── docs/METHODS.md                    definitions and design of the explanation-drift analysis
+└── docs/EXTERNAL_DATA.md              sources and licences of the three public datasets (not redistributed here)
 ```
 
 ## Quick start
@@ -101,3 +107,14 @@ Please cite the archived dataset and code (see `CITATION.cff`, or use GitHub's "
 ## Licence
 
 Code: MIT (`LICENSE`). Data and documentation: CC BY 4.0 (`LICENSE-DATA`).
+
+## Version history
+
+| Version | Date | Change |
+|---|---|---|
+| v1 | 2026-02-08 | First release (doi:10.5281/zenodo.18525278). The description gave the data period as "2022 to 2023" (incorrect). Used for the IntelliSys 2026 chapter. |
+| v2.0 | 2026-06-05 | Second release (doi:10.5281/zenodo.20560302). Same CSV, same incorrect period. Used for the IntelliSys 2026 chapter. |
+| v3.0 | 2026-11-02 | Reorganised repository, corrected data description (loans originated July 2023 to June 2025, collected July 2024 to June 2026), added the explanation-drift analysis (doi:10.5281/zenodo.23883422). The CSV is unchanged. |
+| v3.1.0 | 2026-11 | All preprocessing is now fitted on training rows only (also inside each cross-validation fold), so every federated result was regenerated; adds the rank-graduation compliance measures and the audit on three public credit datasets. The CSV is unchanged. |
+
+The data file `data/bangladesh_sme_1200_records.csv` has not changed in any version. Cite the version you use.
